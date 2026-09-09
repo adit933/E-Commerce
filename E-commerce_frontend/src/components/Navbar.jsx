@@ -5,7 +5,7 @@ function Navbar() {
 
     return (
             <div
-            className="h-17 w-screen px-12 bg-white flex items-center justify-between 
+            className="h-17 w-full px-12 bg-white flex items-center justify-between 
             shadow-sm"
             >
 
