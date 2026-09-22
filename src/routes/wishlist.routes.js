@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware";
-import { isAdmin } from "../middleware/admin.middleware";
+import { verifyJWT } from "../middleware/auth.middleware.js";
+import { isAdmin } from "../middleware/admin.middleware.js";
 import {
     addToWishlist,
     checkWishList,
@@ -8,7 +8,7 @@ import {
     getWishlist,
     removeFromWishlist,
 
- } from "../controllers/wishList.controller";
+ } from "../controllers/wishList.controller.js";
 
 const router = Router()
 

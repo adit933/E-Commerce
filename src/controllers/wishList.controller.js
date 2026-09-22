@@ -10,12 +10,12 @@ wishlistController.js
 
 */
 
-import { asyncHandler } from "../utils/AsyncHandler";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { Product } from "../models/product.models";
-import { WishList } from "../models/wishlist.models";
+import { Product } from "../models/product.models.js";
+import { WishList } from "../models/wishlist.models.js";
 
 const addToWishlist = asyncHandler(async (req, res) => {
   const userId = req.user?._id;

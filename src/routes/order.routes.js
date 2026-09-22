@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware";
+import { verifyJWT } from "../middleware/auth.middleware.js";
 import { 
     cancelOrder,
     createOrder,
@@ -11,8 +11,8 @@ import {
     markOrderDelivered,
     markOrderPaid,
     updateOrderStatus,
- } from "../controllers/order.controller";
-import { isAdmin } from "../middleware/admin.middleware";
+ } from "../controllers/order.controller.js";
+import { isAdmin } from "../middleware/admin.middleware.js";
 
 const router = Router()
 
@@ -35,3 +35,5 @@ router.route("/orders/paid/:orderId").post(verifyJWT , isAdmin , markOrderPaid)
 router.route("/orders/delivered/:orderId").post(verifyJWT , isAdmin , markOrderDelivered)
 
 router.route("/orders/:orderId").delete(verifyJWT , isAdmin , deleteOrder)
+
+export {router}

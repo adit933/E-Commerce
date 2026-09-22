@@ -4,7 +4,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import mongoose from "mongoose"
 import { User } from "../models/user.models.js"
-import jwt from jsonwebtoken
+import jwt from "jsonwebtoken"
 import crypto from "crypto"
 
 //for creating admin manually update one of the accounts in the mongo db atlas

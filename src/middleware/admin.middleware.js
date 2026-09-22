@@ -1,8 +1,8 @@
 //the following is admin middleware it is used for authenticating whther a user who is trying to access admin functionalities 
 //is actually an admin or not
 
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from "../utils/AsyncHandler";
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/AsyncHandler.js";
    
 const isAdmin = asyncHandler((req , res , next) => {
 

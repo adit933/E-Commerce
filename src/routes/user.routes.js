@@ -60,4 +60,4 @@ router.route("/address/:addressId").delete(verifyJWT , deleteAddress)
 
 router.route("/:userId").get(verifyJWT , isAdmin , getUserById)
 
-export default router
+export {router}

@@ -4,11 +4,11 @@
 // updateReview
 // deleteReview
 
-import { asyncHandler } from "../utils/AsyncHandler";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { Product } from "../models/product.models";
-import { Review } from "../models/review.models";
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { Product } from "../models/product.models.js";
+import { Review } from "../models/review.models.js";
 
 const createReview = asyncHandler(async(req , res) => {
     

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware";
-import { isAdmin } from "../middleware/admin.middleware";
+import { verifyJWT } from "../middleware/auth.middleware.js";
+import { isAdmin } from "../middleware/admin.middleware.js";
 import { 
     createPayment,
     getMyPayment,
@@ -8,7 +8,7 @@ import {
     markPaymentAsFailed,
     markPaymentCompleted,
     markPaymentRefund,
- } from "../controllers/payment.controller";
+ } from "../controllers/payment.controller.js";
 
 const router = Router()
 
