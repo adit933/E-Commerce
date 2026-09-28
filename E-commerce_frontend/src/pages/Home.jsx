@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useState , useEffect} from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Footer from "../components/Footer";
@@ -6,26 +6,29 @@ import FeaturedProduct from "../components/FeaturedProductCard";
 import Category from "../components/Category";
 
 function Home() {
-    const products = [
-        {
-            id: 1,
-            name: "Sneakers",
-            price: 2499,
-            image: "https://images.pexels.com/photos/23692992/pexels-photo-23692992.jpeg"
-        },
-        {
-            id: 2,
-            name: "Watch",
-            price: 3999,
-            image: "https://images.pexels.com/photos/23692992/pexels-photo-23692992.jpeg"
-        },
-        {
-            id: 3,
-            name: "Headphones",
-            price: 1999,
-            image: "https://images.pexels.com/photos/23692992/pexels-photo-23692992.jpeg"
-        },
-    ]
+
+
+    const [products , setProducts] = useState([])
+
+    useEffect (() => {
+
+        fetchProducts()
+    } , [])
+
+    const fetchProducts = async () => {
+
+        const response = await fetch('http://localhost:8000/api/v1/product/products')
+
+        const data = await response.json()
+
+        const allproducts = data.data
+
+        const featuredProducts = allproducts.filter((product) => {
+            return product.isFeatured === true
+        })
+
+        setProducts(featuredProducts)
+    }
 
     const categories = [
         {
@@ -71,13 +74,38 @@ function Home() {
         }
     ];
 
+    const [category , setCategory] = useState([])
+
+    useEffect(() => {
+
+        fetchCategories()
+
+    } , [])
+
+
+    const fetchCategories = async () => {
+        const response = await fetch('http://localhost:8000/api/v1/category/category')
+
+        const data = await response.json()
+
+        // console.log(data);
+
+        const allCategories = data.data
+
+        const activeCategories = allCategories.filter((category) => {
+            return category.isActive === true
+        })
+
+        setCategory(activeCategories)
+    }
+
     return (
         <>
 
             <Hero />
 
             <FeaturedProduct product={products} />
-            <Category categories={categories} />
+            <Category categories={category} />
 
             <Footer />
 

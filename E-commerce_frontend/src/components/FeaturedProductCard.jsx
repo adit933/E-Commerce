@@ -1,8 +1,11 @@
 import React from "react";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 function FeaturedProduct({ product }) {
+
+    const navigate = useNavigate()
 
     return (
         // <div
@@ -78,7 +81,7 @@ function FeaturedProduct({ product }) {
             {product.map((pr) => (
 
                 <div
-                    key={pr.id}
+                    key={pr._id}
                     className="group overflow-hidden rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
                 >
 
@@ -86,7 +89,7 @@ function FeaturedProduct({ product }) {
                     <div className="relative overflow-hidden">
 
                         <img
-                            src={pr.image}
+                            src={pr.images[0].url}
                             alt={pr.name}
                             className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                         />
@@ -107,7 +110,7 @@ function FeaturedProduct({ product }) {
                         </h3>
 
                         <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                            Product description
+                            {pr.description}
                         </p>
 
                         <div className="mt-4 flex items-center justify-between">
@@ -117,6 +120,7 @@ function FeaturedProduct({ product }) {
                             </p>
 
                             <button
+                                onClick={() => (navigate(`/products/${pr._id}`))}
                                 className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
                             >
                                 View

@@ -82,7 +82,7 @@ function Category({ categories }) {
                         {categories.map((category) => (
 
                             <div
-                                key={category.id}
+                                key={category._id}
                                 className="group shrink-0 w-64
                         overflow-hidden rounded-2xl
                         border border-white/60
@@ -95,13 +95,9 @@ function Category({ categories }) {
                                 {/* Image */}
                                 <div className="relative overflow-hidden">
 
-                                    <img
-                                        src={category.image}
-                                        alt={category.name}
-                                        className="w-full h-64 object-cover
-                                transition-transform duration-500
-                                group-hover:scale-105"
-                                    />
+                                    <div className="h-48 flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+                                        <span className="text-6xl">🛍️</span>
+                                    </div>
 
                                     {/* Image overlay */}
                                     <div className="absolute inset-0
