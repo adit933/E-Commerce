@@ -5,7 +5,12 @@ import { useNavigate } from "react-router-dom";
 
 function FeaturedProduct({ product }) {
 
+      console.log("FEATURED PRODUCT COMPONENT RENDERED");
+    console.log("product =", product);
+
     const navigate = useNavigate()
+
+    console.log(product);
 
     return (
         // <div

@@ -3,6 +3,10 @@ import { useRef } from "react";
 
 function Category({ categories }) {
 
+
+    console.log("CATEGORY COMPONENT RENDERED");
+    console.log("categories =", categories);
+
     const scrollref = useRef(null);
 
     const leftScroll = () => {
@@ -18,6 +22,8 @@ function Category({ categories }) {
             behavior: "smooth"
         })
     }
+
+    console.log(categories);
 
     return (
         <div className="relative overflow-hidden px-12 py-16 lg:px-20 bg-gradient-to-br from-slate-50 via-white to-indigo-50">

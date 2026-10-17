@@ -110,6 +110,8 @@ const userRegister = asyncHandler(async (req , res) => {
     throw new ApiError(500 , "Image upload failed !!!")
    }
 
+   const parseAddress = JSON.parse(address)
+
    const user = await User.create({
         username : username.toLowerCase(),
         email : email,
@@ -117,7 +119,7 @@ const userRegister = asyncHandler(async (req , res) => {
         fullName : fullName,
         avatar : avatar?.url,
         phoneNumber : phoneNumber,
-        address : address,
+        address : parseAddress,
         role : "user",
         isVerified : true
    })

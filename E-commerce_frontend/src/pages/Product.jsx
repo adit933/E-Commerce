@@ -7,7 +7,7 @@ function Product()
 
     const {id} = useParams() // basically returns an object { id : "69an123" }
 
-    const [product , setProduct] = useState({})
+    const [product , setProduct] = useState([])
 
     const [quantity , setQuantity] = useState(1)
 

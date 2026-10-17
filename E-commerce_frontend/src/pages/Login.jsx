@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+
+    const navigate = useNavigate()
 
     const [data, setData] = useState({
         email: "",
@@ -10,7 +13,7 @@ function Login() {
     const handleChange = (e) => {
         setData({
             ...data,
-            [e.target.name]: [e.target.value]
+            [e.target.name]: e.target.value
         })
     }
 
@@ -22,7 +25,7 @@ function Login() {
             const response = await fetch(
                 "http://localhost:8000/api/v1/users/login",
                 {
-                    method: POST,
+                    method: "POST",
                     headers: {
                         "Content-type": "application/json"
                     },
@@ -41,6 +44,8 @@ function Login() {
             }
 
             alert("Login Successfull !!!")
+
+            navigate("/")
 
 
         } catch (error) {
@@ -74,7 +79,7 @@ function Login() {
                         <input
                             type="email"
                             name="email"
-                            value={formData.email}
+                            value={data.email}
                             onChange={handleChange}
                             placeholder="Enter your email"
                             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -91,7 +96,7 @@ function Login() {
                         <input
                             type="password"
                             name="password"
-                            value={formData.password}
+                            value={data.password}
                             onChange={handleChange}
                             placeholder="Enter your password"
                             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -102,6 +107,7 @@ function Login() {
                     <button
                         type="submit"
                         className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            
                     >
                         Login
                     </button>

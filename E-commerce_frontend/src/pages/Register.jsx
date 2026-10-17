@@ -1,8 +1,11 @@
-import { json } from "express";
+
 import React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Register(){
+
+    const navigate = useNavigate()
 
     const [formData , setFormData] = useState({
         username : "",
@@ -22,7 +25,7 @@ function Register(){
     const handleData = (e) => { // for setting the data
         setFormData({
             ...formData, //for keeping the old form data
-            [e.target.name] : [e.taret.value]
+            [e.target.name] : e.target.value
         })
     }
 
@@ -56,12 +59,12 @@ function Register(){
             const response = await fetch(
                 "http://localhost:8000/api/v1/users/register",
                 {
-                    method : post,
+                    method : "POST",
                     body : data
                 }
             )
 
-            const result = await resposne.json()
+            const result = await response.json()
 
             console.log(result);
 
@@ -104,7 +107,7 @@ function Register(){
                         name="fullName"
                         placeholder="Full Name"
                         value={formData.fullName}
-                        onChange={handleChange}
+                        onChange={(handleData)}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -114,7 +117,7 @@ function Register(){
                         name="username"
                         placeholder="Username"
                         value={formData.username}
-                        onChange={handleChange}
+                        onChange={handleData}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -124,7 +127,7 @@ function Register(){
                         name="email"
                         placeholder="Email"
                         value={formData.email}
-                        onChange={handleChange}
+                        onChange={handleData}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -134,7 +137,7 @@ function Register(){
                         name="phoneNumber"
                         placeholder="+919876543210"
                         value={formData.phoneNumber}
-                        onChange={handleChange}
+                        onChange={handleData}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -144,7 +147,7 @@ function Register(){
                         name="password"
                         placeholder="Password"
                         value={formData.password}
-                        onChange={handleChange}
+                        onChange={handleData}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -171,7 +174,7 @@ function Register(){
                         name="street"
                         placeholder="Street"
                         value={formData.street}
-                        onChange={handleChange}
+                        onChange={handleData}
                         className="w-full border rounded-xl px-4 py-3"
                         required
                     />
@@ -183,7 +186,7 @@ function Register(){
                             name="city"
                             placeholder="City"
                             value={formData.city}
-                            onChange={handleChange}
+                            onChange={handleData}
                             className="border rounded-xl px-4 py-3"
                             required
                         />
@@ -193,7 +196,7 @@ function Register(){
                             name="state"
                             placeholder="State"
                             value={formData.state}
-                            onChange={handleChange}
+                            onChange={handleData}
                             className="border rounded-xl px-4 py-3"
                             required
                         />
@@ -203,7 +206,7 @@ function Register(){
                             name="country"
                             placeholder="Country"
                             value={formData.country}
-                            onChange={handleChange}
+                            onChange={handleData}
                             className="border rounded-xl px-4 py-3"
                             required
                         />
@@ -213,7 +216,7 @@ function Register(){
                             name="pincode"
                             placeholder="Pincode"
                             value={formData.pincode}
-                            onChange={handleChange}
+                            onChange={handleData}
                             className="border rounded-xl px-4 py-3"
                             required
                         />
