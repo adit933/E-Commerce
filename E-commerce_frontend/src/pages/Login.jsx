@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 function Login() {
 
     const navigate = useNavigate()
 
+    const {setUser} = useContext(AuthContext)
+
     const [data, setData] = useState({
         email: "",
         password: ""
     })
+
+    const [successMessage , setSuccessMessage] = useState("")
 
     const handleChange = (e) => {
         setData({
@@ -43,9 +48,13 @@ function Login() {
                 return
             }
 
-            alert("Login Successfull !!!")
+            setSuccessMessage("Login Successfull !!!")
 
-            navigate("/")
+            setUser(result.data)
+
+            // navigate("/")
+
+            directToHome()
 
 
         } catch (error) {
@@ -55,8 +64,45 @@ function Login() {
 
     }
 
+    const directToHome = () => {
+        setTimeout(() => {
+            navigate("/")
+        } , 3000)
+    }
+
+    useEffect(() => {
+
+        if(!successMessage) return
+
+        const timer = setTimeout(() => {
+            setSuccessMessage("")
+        } , 3000)
+
+        return () => clearTimeout(timer)
+
+    } , [successMessage])
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 flex items-center justify-center px-6">
+
+            {successMessage && (
+                <div
+                    role="status"
+                    className="fixed right-5 top-5 z-50 flex items-center gap-3 rounded-lg bg-green-600 px-5 py-4 text-white shadow-lg"
+                >
+                    <span className="text-xl">✓</span>
+
+                    <span>{successMessage}</span>
+
+                    <button
+                        onClick={() => setSuccessMessage("")}
+                        className="ml-2 text-xl hover:text-gray-200"
+                        aria-label="Close notification"
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
 
             <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
