@@ -44,11 +44,11 @@ function Register(){
             "address" , 
             JSON.stringify([{
                 street : formData.street,
-                street: formData.street,
                 city: formData.city,
                 state: formData.state,
                 country: formData.country,
-                pincode: formData.pincode
+                pincode: formData.pincode,
+                isDefault : true
             }])
         )
 
