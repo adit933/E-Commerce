@@ -142,26 +142,46 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const getAllProducts = asyncHandler(async (req , res) => {
 
-    const {page = 1 , limit = 20} = req.query
+    // const {page = 1 , limit = 20} = req.query
+
+    const limit_product = 20
+
+    const page = Math.max(1 , Number(req.query.page) || 1)
+
+    const limit = Math.min(100 , Math.max(1, Number(req.query.limit) || 20))
 
     const skip = (page - 1) * limit
 
-    const allProducts = await Product.find({})
-    .skip(skip) // the following two are for pagination for representing limited products
-    .limit(limit)
+    // const allProducts = await Product.find({})
+    // .skip(skip) // the following two are for pagination for representing limited products
+    // .limit(limit)
 
-    if(allProducts.length === 0)
-    {
-        throw new ApiError(404 , "There Are No Products at Present !!!")
-    }
+    const [products , totalProducts] = await Promise.all([
+
+        Product.find({})
+        .skip(skip)
+        .limit(limit),
+
+
+        Product.countDocuments({})
+
+    ])
+
+    const totalPages = Math.ceil(totalProducts / limit)
 
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            allProducts,
-            "All Products Fetched Successfully !!!"
+            {
+                products,
+                currentPage : page,
+                totalPages,
+                totalProducts
+            },
+
+            "Products fetched successfully !!!"
         )
     )
 })
@@ -373,7 +393,7 @@ const searchProducts = asyncHandler(async(req , res) => {
         throw new ApiError(400 , "Invalid Product Selected !!! ")
     }
 
-    const searchedProducts = await Products.find({
+    const searchedProducts = await Product.find({
         $or : [{
             name : {
                 $regex : keyword,
@@ -396,7 +416,7 @@ const searchProducts = asyncHandler(async(req , res) => {
         .json(
             new ApiResponse(
                 200,
-                {},
+                [],
                 "There Are no Products with for the following word !!!"
             )
         )

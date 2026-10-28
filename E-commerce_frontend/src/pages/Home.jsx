@@ -1,4 +1,4 @@
-import React , {useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Footer from "../components/Footer";
@@ -7,29 +7,38 @@ import Category from "../components/Category";
 
 function Home() {
 
-     console.log("HOME IS RENDERING");
+    console.log("HOME IS RENDERING");
 
 
-    const [products , setProducts] = useState([])
+    const [products, setProducts] = useState([])
+    const [error , setError] = useState("")
 
-    useEffect (() => {
+    useEffect(() => {
 
         fetchProducts()
-    } , [])
+    }, [])
 
     const fetchProducts = async () => {
 
-        const response = await fetch('http://localhost:8000/api/v1/product/products')
+        try {
 
-        const data = await response.json()
+            const response = await fetch('http://localhost:8000/api/v1/product/products/featured')
 
-        const allproducts = data.data
+            const data = await response.json()
 
-        const featuredProducts = allproducts.filter((product) => {
-            return product.isFeatured === true
-        })
+            if (!response.ok) {
+                throw new Error(data.message || "Error in fetching featured products !!!")
+            }
 
-        setProducts(featuredProducts)
+            setProducts(
+                Array.isArray(data.data) ? data.data : []
+            )
+
+        } catch (error) {
+            console.log("Error in fetching products !!!" , error);
+            setError(error.message)
+            setProducts([])
+        }
     }
 
     // const categories = [
@@ -76,13 +85,13 @@ function Home() {
     //     }
     // ];
 
-    const [category , setCategory] = useState([])
+    const [category, setCategory] = useState([])
 
     useEffect(() => {
 
         fetchCategories()
 
-    } , [])
+    }, [])
 
 
     const fetchCategories = async () => {

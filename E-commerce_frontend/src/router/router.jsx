@@ -7,6 +7,8 @@ import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import Cart from "../pages/Cart";
 import EditProfile from "../pages/EditProfile";
+import About from "../pages/About";
+import Shop from "../pages/Shop";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -20,6 +22,8 @@ const router = createBrowserRouter(
                 <Route path="profile" element = {<Profile/>}/>
                 <Route path="cart" element = {<Cart/>}/>
                 <Route path="edit-profile" element = {<EditProfile/>}/>
+                <Route path="about" element = {<About/>}/>
+                <Route path = "shop" element = {<Shop/>}/>
 
             </Route>
         </>

@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Error fetching current user : ", error)
         }
 
-    }
+    } , []
 
     )
 

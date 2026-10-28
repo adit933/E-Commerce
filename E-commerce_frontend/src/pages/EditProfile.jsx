@@ -17,7 +17,7 @@ function EditProfile() {
         state: "",
         country: "",
         pincode: ""
-    }
+    } 
 
     const [profile, setProfile] = useState({
         fullName: "",
@@ -269,6 +269,45 @@ function EditProfile() {
     }
 
 
+    const handleSetDefaultAddress = async (addressId) => {
+        setMessage("");
+        setError("");
+
+        try {
+            const response = await fetch(
+                `http://localhost:8000/api/v1/users/address/${addressId}/default`,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to set default address."
+                );
+            }
+
+            // Your controller returns the updated user in data.data.
+            const updatedAddresses = data.data?.address;
+
+            if (Array.isArray(updatedAddresses)) {
+                setAddresses(updatedAddresses);
+            }
+
+            setMessage(
+                data.message || "Default address updated successfully!"
+            );
+        } catch (error) {
+            console.error("Error setting default address:", error);
+            setError(error.message || "Unable to set default address.");
+        }
+    };
+
+
+
 
     return (
         <main className="profile-shell min-h-screen bg-slate-950 px-4 py-10 text-white sm:px-8">
@@ -447,17 +486,27 @@ function EditProfile() {
                                     key={address._id}
                                     className="rounded-2xl border border-white/10 bg-slate-900/50 p-5 transition hover:border-violet-400/30"
                                 >
+
                                     <div className="mb-3 flex items-center justify-between gap-3">
                                         <h3 className="font-semibold text-white">
                                             Delivery Address
                                         </h3>
 
-                                        {address.isDefault && (
+                                        {address.isDefault ? (
                                             <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
-                                                Default
+                                                ✓ Default
                                             </span>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSetDefaultAddress(address._id)}
+                                                className="rounded-lg border border-violet-400/30 bg-violet-500/10 px-3 py-2 text-xs font-semibold text-violet-200 transition hover:bg-violet-500/20"
+                                            >
+                                                Set as Default
+                                            </button>
                                         )}
                                     </div>
+
 
                                     <p className="break-words text-sm leading-7 text-slate-400">
                                         {[
