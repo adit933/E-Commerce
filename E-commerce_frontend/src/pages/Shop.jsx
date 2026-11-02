@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const shopStyles = `
     .shop-shell {
@@ -416,6 +416,57 @@ const shopStyles = `
     .shop-loading-dot:nth-child(2) { animation-delay: .2s; }
     .shop-loading-dot:nth-child(3) { animation-delay: .4s; }
 
+.shop-filter-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid rgba(196,181,253,.14);
+    border-radius: 14px;
+    background: rgba(15,18,38,.65);
+}
+
+.shop-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.shop-filter-field label {
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.shop-filter-field input,
+.shop-filter-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: 9px;
+    outline: none;
+    color: #f8fafc;
+    background: #111329;
+    font-size: 13px;
+    transition: border-color .2s;
+}
+
+.shop-filter-field input:focus,
+.shop-filter-field select:focus {
+    border-color: #a78bfa;
+}
+
+.shop-filter-field input::placeholder {
+    color: #64748b;
+}
+
+.shop-filter-field select option {
+    background: #111329;
+    color: #f8fafc;
+}
+
+
     @keyframes shopOrbFloat {
         from { transform: translate(0, 0) scale(1); }
         to { transform: translate(25px, -25px) scale(1.1); }
@@ -533,12 +584,27 @@ function Shop() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const [currentPage, setCurrentPage] = useState(0)
+    const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalProducts, setTotalProducts] = useState(0)
     const [retryCount, setRetyrCount] = useState(0)
 
     const navigate = useNavigate()
+
+    const [searchParams] = useSearchParams()
+
+    const categoryId = searchParams.get("category")
+
+    const [draftFilters, setDraftFilters] = useState({ // users selection before applying the filters 
+        category: categoryId || "",
+        brand: "",
+        minPrice: "",
+        maxPrice: ""
+    })
+
+    const [appliedFilters, setAppliedFilters] = useState({}) // what all filters are actually needed to be sent to the backend
+
+    const [categories, setCategories] = useState([]) // for drop down menu
 
     useEffect(() => {
         const controller = new AbortController();
@@ -550,9 +616,40 @@ function Shop() {
 
                 const keyword = searchTerm.trim();
 
-                const url = keyword
-                    ? `http://localhost:8000/api/v1/product/products/search?keyword=${encodeURIComponent(keyword)}`
-                    : `http://localhost:8000/api/v1/product/products?page=${currentPage}&limit=${limit}`;
+                // Include categoryId when visiting a category-specific page.
+                const filters = {
+                    ...appliedFilters,
+                    category: appliedFilters.category || categoryId || ""
+                };
+
+                // Check whether at least one filter has a value.
+                const hasFilters = Object.values(filters).some(
+                    value => value.trim() !== ""
+                );
+
+                let url;
+
+                if (hasFilters) {
+                    const params = new URLSearchParams();
+
+                    Object.entries(filters).forEach(([key, value]) => {
+                        if (value.trim()) {
+                            params.append(key, value.trim());
+                        }
+                    });
+
+                    if (keyword) {
+                        params.append("keyword", keyword);
+                    }
+
+                    url = `http://localhost:8000/api/v1/product/products/filter?${params.toString()}`;
+                }
+                else if (keyword) {
+                    url = `http://localhost:8000/api/v1/product/products/search?keyword=${encodeURIComponent(keyword)}`;
+                }
+                else {
+                    url = `http://localhost:8000/api/v1/product/products?page=${currentPage}&limit=${limit}`;
+                }
 
                 const response = await fetch(url, {
                     signal: controller.signal
@@ -568,8 +665,7 @@ function Shop() {
 
                 console.log(result);
 
-                if (keyword) {
-                    // Search API returns an array.
+                if (hasFilters || keyword || categoryId) {
                     const matches = Array.isArray(result.data)
                         ? result.data
                         : [];
@@ -577,8 +673,8 @@ function Shop() {
                     setProducts(matches);
                     setTotalProducts(matches.length);
                     setTotalPages(1);
-                } else {
-                    // Paginated products API returns an object.
+                }
+                else {
                     const data = result.data;
 
                     setProducts(
@@ -591,6 +687,7 @@ function Shop() {
                     setTotalPages(data.totalPages);
                     setTotalProducts(data.totalProducts);
                 }
+
             } catch (err) {
                 if (err.name !== "AbortError") {
                     setError(err.message || "Something went wrong");
@@ -609,8 +706,42 @@ function Shop() {
             clearTimeout(timer);
             controller.abort();
         };
-    }, [searchTerm, currentPage, retryCount]);
-0
+
+    }, [searchTerm, currentPage, retryCount, categoryId, appliedFilters]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+
+                const response = await fetch(
+                    `http://localhost:8000/api/v1/category/category?page=${1}&limit=${100}`,
+                    {
+                        method: "GET"
+                    }
+                )
+
+                const result = await response.json()
+
+                console.log("Category API Status:", response.status);
+                console.log("Category API Response:", result);
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Failed to fetch categories")
+                }
+
+                setCategories(result.data.categories)
+
+            } catch (error) {
+                console.log("Category fetching error:", error.message);
+            }
+
+
+        }
+
+        fetchCategories()
+    }, [])
+
+
     return (
         <>
             <style>{shopStyles}</style>
@@ -624,6 +755,8 @@ function Shop() {
                 </div>
 
                 <section className="shop-container">
+
+                    {/* PAGE HEADER */}
                     <header>
                         <span className="shop-eyebrow">
                             <span>✦</span>
@@ -633,9 +766,7 @@ function Shop() {
                         <h1 className="shop-title">
                             Find what you
                             <br />
-                            <span className="shop-gradient-text">
-                                love.
-                            </span>
+                            <span className="shop-gradient-text">love.</span>
                         </h1>
 
                         <p className="shop-subtitle">
@@ -643,41 +774,144 @@ function Shop() {
                             Search by name or brand to discover
                             something that suits you.
                         </p>
-
-                        <div className="shop-search-wrap">
-                            <div className="shop-search">
-                                <span
-                                    className="shop-search-icon"
-                                    aria-hidden="true"
-                                >
-                                    ⌕
-                                </span>
-
-                                <input
-                                    type="search"
-                                    value={searchTerm}
-                                    onChange={(e) => {
-                                        setSearchTerm(e.target.value)
-                                        setCurrentPage(1)
-                                    }}
-                                    placeholder="Search products or brands..."
-                                    aria-label="Search products by name or brand"
-                                />
-
-                                {searchTerm && (
-                                    <button
-                                        type="button"
-                                        className="shop-clear"
-                                        onClick={() => setSearchTerm("")}
-                                        aria-label="Clear search"
-                                    >
-                                        Clear
-                                    </button>
-                                )}
-                            </div>
-                        </div>
                     </header>
 
+                    {/* SEARCH AND FILTERS */}
+                    <section className="shop-search-wrap">
+
+                        {/* SEARCH BAR */}
+                        <div className="shop-search">
+                            <span className="shop-search-icon" aria-hidden="true">
+                                ⌕
+                            </span>
+
+                            <input
+                                type="search"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                                placeholder="Search products or brands..."
+                                aria-label="Search products by name or brand"
+                            />
+
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    className="shop-clear"
+                                    onClick={() => setSearchTerm("")}
+                                    aria-label="Clear search"
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+
+                        {/* FILTER PANEL */}
+                        <div className="shop-filter-panel">
+
+                            {!categoryId && (
+                                <div className="shop-filter-field">
+                                    <label htmlFor="filter-category">
+                                        Category
+                                    </label>
+
+                                    <select
+                                        id="filter-category"
+                                        value={draftFilters.category}
+                                        onChange={(e) =>
+                                            setDraftFilters(prev => ({
+                                                ...prev,
+                                                category: e.target.value
+                                            }))
+                                        }
+                                    >
+                                        <option value="">All Categories</option>
+
+                                        {categories.map((category) => (
+                                            <option
+                                                key={category._id}
+                                                value={category._id}
+                                            >
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="shop-filter-field">
+                                <label htmlFor="brand">Brand</label>
+
+                                <input
+                                    id="brand"
+                                    type="text"
+                                    placeholder="Enter brand name"
+                                    value={draftFilters.brand}
+                                    onChange={(e) =>
+                                        setDraftFilters(prev => ({
+                                            ...prev,
+                                            brand: e.target.value
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="shop-filter-field">
+                                <label htmlFor="filter-min-price">
+                                    Minimum Price
+                                </label>
+
+                                <input
+                                    id="filter-min-price"
+                                    type="number"
+                                    min="0"
+                                    placeholder="Min price"
+                                    value={draftFilters.minPrice}
+                                    onChange={(e) =>
+                                        setDraftFilters(prev => ({
+                                            ...prev,
+                                            minPrice: e.target.value
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="shop-filter-field">
+                                <label htmlFor="filter-max-price">
+                                    Maximum Price
+                                </label>
+
+                                <input
+                                    id="filter-max-price"
+                                    type="number"
+                                    min="0"
+                                    placeholder="Max price"
+                                    value={draftFilters.maxPrice}
+                                    onChange={(e) =>
+                                        setDraftFilters(prev => ({
+                                            ...prev,
+                                            maxPrice: e.target.value
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAppliedFilters({ ...draftFilters });
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                Apply Filters
+                            </button>
+
+                        </div>
+                    </section>
+
+                    {/* RESULTS HEADER */}
                     <div className="shop-results-bar">
                         <div>
                             <h2 className="shop-results-title">
@@ -695,25 +929,31 @@ function Shop() {
 
                         {!loading && !error && (
                             <span className="shop-count-pill">
-                                {searchTerm.trim() ? products.length : totalProducts}{" "}
-                                {(searchTerm.trim() ? products.length : totalProducts) === 1
+                                {searchTerm.trim()
+                                    ? products.length
+                                    : totalProducts}{" "}
+                                {(searchTerm.trim()
+                                    ? products.length
+                                    : totalProducts) === 1
                                     ? "product"
                                     : "products"}
                             </span>
                         )}
                     </div>
 
+                    {/* LOADING STATE */}
                     {loading && (
                         <div className="shop-status" role="status">
-                            <div className="shop-status-icon">
-                                ◌
-                            </div>
+                            <div className="shop-status-icon">◌</div>
+
                             <h3 className="shop-status-title">
                                 Finding your products
                             </h3>
+
                             <p className="shop-status-text">
                                 Just a moment
                             </p>
+
                             <div aria-hidden="true">
                                 <span className="shop-loading-dot" />
                                 <span className="shop-loading-dot" />
@@ -722,34 +962,44 @@ function Shop() {
                         </div>
                     )}
 
+                    {/* ERROR STATE */}
                     {!loading && error && (
                         <div className="shop-status" role="alert">
                             <div className="shop-status-icon">!</div>
+
                             <h3 className="shop-status-title">
                                 Unable to load products
                             </h3>
+
                             <p className="shop-status-text shop-status-error">
                                 {error}
                             </p>
+
                             <button
                                 type="button"
                                 className="shop-view-button"
-                                onClick={(count) => count + 1}
+                                onClick={() =>
+                                    setRetryCount(prev => prev + 1)
+                                }
                             >
                                 Try again
                             </button>
                         </div>
                     )}
 
+                    {/* EMPTY STATE */}
                     {!loading && !error && products.length === 0 && (
                         <div className="shop-status">
                             <div className="shop-status-icon">⌕</div>
+
                             <h3 className="shop-status-title">
                                 No products found
                             </h3>
+
                             <p className="shop-status-text">
                                 Try a different product name or brand.
                             </p>
+
                             {searchTerm && (
                                 <button
                                     type="button"
@@ -762,9 +1012,11 @@ function Shop() {
                         </div>
                     )}
 
+                    {/* PRODUCT GRID */}
                     {!loading && !error && products.length > 0 && (
                         <div className="shop-product-grid">
                             {products.map((product, index) => {
+
                                 const imageUrl =
                                     product.image ||
                                     (Array.isArray(product.images)
@@ -851,7 +1103,9 @@ function Shop() {
                                             </div>
 
                                             <button
-                                                onClick={() => navigate(`/products/${product._id}`)}
+                                                onClick={() =>
+                                                    navigate(`/products/${product._id}`)
+                                                }
                                                 className="shop-view-button"
                                             >
                                                 View Product →
@@ -863,7 +1117,7 @@ function Shop() {
                         </div>
                     )}
 
-                    {/* Pagination */}
+                    {/* PAGINATION */}
                     {!loading &&
                         !error &&
                         !searchTerm.trim() &&
@@ -871,7 +1125,9 @@ function Shop() {
                             <div className="shop-pagination">
                                 <button
                                     type="button"
-                                    onClick={() => setCurrentPage((page) => page - 1)}
+                                    onClick={() =>
+                                        setCurrentPage(page => page - 1)
+                                    }
                                     disabled={currentPage <= 1}
                                 >
                                     ← Previous
@@ -883,13 +1139,16 @@ function Shop() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setCurrentPage((page) => page + 1)}
+                                    onClick={() =>
+                                        setCurrentPage(page => page + 1)
+                                    }
                                     disabled={currentPage >= totalPages}
                                 >
                                     Next →
                                 </button>
                             </div>
                         )}
+
                 </section>
             </main>
         </>

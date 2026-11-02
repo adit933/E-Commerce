@@ -5,6 +5,7 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 import {
     createProduct,
     deleteProduct,
+    filterByCategory,
     filterProducts,
     getAllProducts,
     getFeaturedProducts,
@@ -24,6 +25,12 @@ router.route("/products").post(verifyJWT , isAdmin , createProduct)
 
 router.route("/products/search").get(searchProducts)
 
+router.route("/products/featured").get(getFeaturedProducts)
+
+router.route("/products/filter").get(filterProducts)
+
+router.route("/products/category/:categoryId").get(filterByCategory)
+
 router.route("/products/:productId").get(getProductById)
 
 router.route("/products/:productId").patch(verifyJWT , isAdmin , updateProduct)
@@ -32,12 +39,12 @@ router.route("/products/:productId").delete(verifyJWT , isAdmin , deleteProduct)
 
 
 
-router.route("/products/filter").get(filterProducts)
+
 
 router.route("/products/:productId/featured").patch(verifyJWT , isAdmin , toggleFeaturedProduct)
 
 router.route("/products/:productId/isActive").patch(verifyJWT , isAdmin , toggleIsActive)
 
-router.route("/products/featured").get(getFeaturedProducts)
+
 
 export {router}

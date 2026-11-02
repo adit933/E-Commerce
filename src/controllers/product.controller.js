@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
+import mongoose from "mongoose";
 
 const createProduct = asyncHandler(async (req, res) => {
     const {
@@ -435,7 +436,19 @@ const searchProducts = asyncHandler(async(req , res) => {
 
 const filterProducts = asyncHandler(async(req , res) => {
 
-    const {brand , category , minPrice , maxPrice} = req.query
+    const {brand , category , minPrice , maxPrice , keyword} = req.query
+
+    if (minPrice && !Number.isFinite(Number(minPrice))) {
+        throw new ApiError(400, "Invalid minimum price");
+    }
+
+    if (maxPrice && !Number.isFinite(Number(maxPrice))) {
+        throw new ApiError(400, "Invalid maximum price");
+    }
+
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+        throw new ApiError(400, "Minimum price cannot exceed maximum price");
+    }
 
     const filterField = {}
 
@@ -444,10 +457,17 @@ const filterProducts = asyncHandler(async(req , res) => {
         filterField.brand = brand
     }
 
-    if(mongoose.Types.ObjectId.isValid(category))
+    if(category)
     {
+        if(!mongoose.Types.ObjectId.isValid(category))
+        {
+             throw new ApiError(400, "Invalid category ID");
+        }
+
         filterField.category = category
     }
+
+    
 
     if(minPrice || maxPrice)
     {
@@ -461,6 +481,14 @@ const filterProducts = asyncHandler(async(req , res) => {
         if(maxPrice)
         {
             filterField.price.$lte = Number(maxPrice)
+        }
+    }
+
+    if(keyword?.trim())
+    {
+        filterField.name = {
+            $regex : keyword.trim(),
+            $options : "i"
         }
     }
 
@@ -592,6 +620,41 @@ const getFeaturedProducts = asyncHandler(async(req , res) => {
     )
 })
 
+const filterByCategory = asyncHandler(async(req , res) => {
+    const {categoryId} = req.params
+
+    if(!mongoose.Types.ObjectId.isValid(categoryId))
+    {
+        throw new ApiError(400 , "Invalid Category Selected !!!")
+    }
+
+    const categoryProducts = await Product.find({
+        category : categoryId
+    })
+
+    let message = ""
+
+    if(categoryProducts.length === 0)
+    {
+        message = "There are no products for this Category !!!"
+    }
+
+    else
+    {
+        message = "The following are the products for this category !!!!"
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+        200,
+        categoryProducts.length === 0 ? [] : categoryProducts,
+        message
+        )
+    )
+})
+
 export {
     createProduct,
     getAllProducts,
@@ -602,6 +665,7 @@ export {
     filterProducts,
     toggleFeaturedProduct,
     toggleIsActive,
-    getFeaturedProducts
+    getFeaturedProducts,
+    filterByCategory
 
 }

@@ -50,19 +50,35 @@ const createCategory = asyncHandler(async(req , res) => {
 
 const getAllCategories = asyncHandler(async(req , res) => {
 
-    const allCategories = await Category.find({})
+    const page = Math.max(1 , Number(req.query.page) || 1)
 
-    if(allCategories.length === 0)
-    {
-        throw new ApiError(404 , "No Categories Exists !!!")
-    }
+    const limit = Math.min(20 , Math.max(1 , Number(req.query.limit)|| 6))
 
+    const skip = (page - 1) * limit
+
+    const [categories , totalCategories] = await Promise.all([
+
+        Category.find({})
+        .skip(skip)
+        .limit(limit),
+
+        Category.countDocuments()
+
+    ])
+
+    const totalPages = Math.ceil(totalCategories / limit)
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            allCategories,
+            {
+                categories,
+                currentPage : page,
+                totalPages,
+                totalCategories
+
+            },
             "Categories Fetched Successfully !!!"
         )
     )
@@ -175,10 +191,82 @@ const toggleIsActive = asyncHandler(async(req , res) => {
     )
 })
 
+const searchCategory = asyncHandler(async(req , res) => {
+    
+    const {keyword} = req.query
+
+    if(!keyword?.trim())
+    {
+        throw new ApiError(400 , "Invalid Product Selected !!!")
+    }
+
+    const searchedCategory = await Category.find({
+        name : {
+            $regex : keyword,
+            $options: "i"
+        }
+    })
+
+    if(searchedCategory.length === 0)
+    {
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                [],
+                "No Category for the searched product !!!"
+            )
+        )
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            searchedCategory,
+            "Category got successfully !!!"
+        )
+    )
+
+})
+
+const isActiveCategory = asyncHandler(async(req , res) => {
+
+    const activeCategories = await Category.find({
+        isActive : true
+    })
+
+    let message = ""
+
+    if(activeCategories.length === 0)
+    {
+        message = "There are no Active Catgeories right now !!!"
+    }
+
+    else
+    {
+        message = "the following are the Active Categories"
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            activeCategories.length === 0 ? [] : activeCategories,
+            message
+        )
+    )
+})
+
 export {
     createCategory,
     getAllCategories,
     updateCategory,
     deleteCategory,
-    toggleIsActive
+    toggleIsActive,
+    searchCategory,
+    isActiveCategory
 }

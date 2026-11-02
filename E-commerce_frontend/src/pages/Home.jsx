@@ -95,7 +95,7 @@ function Home() {
 
 
     const fetchCategories = async () => {
-        const response = await fetch('http://localhost:8000/api/v1/category/category')
+        const response = await fetch('http://localhost:8000/api/v1/category/category/isActive')
 
         const data = await response.json()
 

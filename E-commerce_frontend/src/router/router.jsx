@@ -9,6 +9,9 @@ import Cart from "../pages/Cart";
 import EditProfile from "../pages/EditProfile";
 import About from "../pages/About";
 import Shop from "../pages/Shop";
+import Category from "../pages/Category";
+import Billing from "../pages/Billing";
+import MyOrders from "../pages/MyOrders";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -24,6 +27,9 @@ const router = createBrowserRouter(
                 <Route path="edit-profile" element = {<EditProfile/>}/>
                 <Route path="about" element = {<About/>}/>
                 <Route path = "shop" element = {<Shop/>}/>
+                <Route path = "categories" element = {<Category/>}/>
+                <Route path="checkout" element={<Billing/>}/>
+                <Route path="my-orders" element={<MyOrders/>}/>
 
             </Route>
         </>

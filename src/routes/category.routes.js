@@ -5,6 +5,8 @@ import {
     createCategory,
     deleteCategory,
     getAllCategories,
+    isActiveCategory,
+    searchCategory,
     toggleIsActive,
     updateCategory,
  } from "../controllers/category.controller.js";
@@ -15,10 +17,16 @@ router.route("/category").post(verifyJWT , isAdmin , createCategory)
 
 router.route("/category").get(getAllCategories)
 
+router.route("/category/search").get(searchCategory)
+
+router.route("/category/isActive").get(isActiveCategory)
+
 router.route("/category/:categoryId").patch(verifyJWT , isAdmin , updateCategory)
 
 router.route("/category/:categoryId").delete(verifyJWT , isAdmin , deleteCategory)
 
 router.route("/category/:categoryId/toggle").patch(verifyJWT , isAdmin , toggleIsActive)
+
+
 
 export {router}

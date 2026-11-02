@@ -59,12 +59,21 @@ const createPayment = asyncHandler(async(req , res) => {
         order : orderId,
         paymentID : paymentId,
         amount : amount,
-        method : method
+        method : method,
+        status : status
     })
 
     if(!payment)
     {
         throw new ApiError(400 , "Failed to create Payment !!! ")
+    }
+
+    if(method !== "COD")
+    {
+        order.isPaid = true
+        order.paidAt = new Date()
+
+        await order.save()
     }
 
     return res

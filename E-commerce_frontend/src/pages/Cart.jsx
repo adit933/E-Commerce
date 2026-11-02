@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -38,6 +39,8 @@ function Cart() {
   const [actionError, setActionError] = useState("");
 
   const reduceMotion = useReducedMotion();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -570,7 +573,7 @@ function Cart() {
                     <div className="flex justify-between gap-4 text-sm">
                       <span className="text-slate-400">Discount</span>
                       <span className="font-semibold text-slate-200">
-                        — 
+                        —
                       </span>
                     </div>
                   </div>
@@ -606,15 +609,14 @@ function Cart() {
                   </motion.div>
 
                   {/* Checkout isn't connected to an order endpoint yet. */}
-                  <div className="rounded-xl border border-indigo-400/20 bg-indigo-950/40 p-4">
-                    <p className="text-sm font-bold text-indigo-200">
-                      Ready for the next step?
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-indigo-300">
-                      Your cart is ready. Connect your checkout page here when
-                      your order flow is implemented.
-                    </p>
-                  </div>
+                  <motion.button
+                    whileHover={reduceMotion ? {} : { scale: 1.03 }}
+                    whileTap={reduceMotion ? {} : { scale: 0.97 }}
+                    onClick={() => navigate("/checkout")}
+                    className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-4 font-bold text-white shadow-lg shadow-indigo-950/30 transition-shadow hover:shadow-indigo-500/20"
+                  >
+                    Proceed to Checkout →
+                  </motion.button>
 
                   <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
                     <span>🔒</span>

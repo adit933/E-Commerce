@@ -358,6 +358,57 @@ function Profile() {
                             </div>
                         </section>
 
+
+                        {/* My Orders */}
+                        <section className="glass-panel glass-hover profile-enter delay-3 rounded-3xl p-5 sm:p-7 lg:p-8">
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+
+                                <div className="flex items-start gap-4">
+
+                                    <div className="icon-tile violet-tile">
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.7"
+                                            className="w-7 h-7"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M3 3h2l2.5 12.5a2 2 0 0 0 2 1.5h8a2 2 0 0 0 2-1.5L21 8H6"
+                                            />
+                                            <circle cx="10" cy="21" r="1" />
+                                            <circle cx="18" cy="21" r="1" />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                                            My Orders
+                                        </h2>
+
+                                        <p className="text-sm text-slate-400 mt-1.5 leading-6">
+                                            View your previous orders and keep track of their delivery status.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/my-orders")}
+                                    className="glow-button rounded-xl px-5 py-3 font-bold text-white transition-all duration-300 whitespace-nowrap"
+                                >
+                                    View My Orders →
+                                </button>
+
+                            </div>
+
+                        </section>
+
+
                         {/* Default address */}
 
                         <section className="glass-panel glass-hover profile-enter delay-3 rounded-3xl p-5 sm:p-7 lg:p-8">

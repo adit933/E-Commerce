@@ -16,7 +16,7 @@ router.route("/payments/:orderId").post(verifyJWT , createPayment)
 
 router.route("/payments").get(verifyJWT , getMyPayment)
 
-router.route("/payments/:orderId").post(verifyJWT , isAdmin , getPaymentById)
+router.route("/payments/:orderId").get(verifyJWT , isAdmin , getPaymentById)
 
 router.route("/payments/:orderId/:paymentId/complete").post(verifyJWT , isAdmin , markPaymentCompleted)
 
