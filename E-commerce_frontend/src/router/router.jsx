@@ -12,6 +12,13 @@ import Shop from "../pages/Shop";
 import Category from "../pages/Category";
 import Billing from "../pages/Billing";
 import MyOrders from "../pages/MyOrders";
+import AdminLayout from "../admin/AdminLayout";
+import AdminDashboard from "../admin/pages/AdminDashboard";
+import AdminLogin from "../admin/pages/AdminLoginPage";
+import AdminProtectedRoute from "../admin/pages/AdminProtectedRoute";
+import ProductManagement from "../admin/pages/ProductManagment";
+import CreateProduct from "../admin/pages/CreateProduct";
+import UpdateProduct from "../admin/pages/UpdateProduct";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -32,6 +39,18 @@ const router = createBrowserRouter(
                 <Route path="my-orders" element={<MyOrders/>}/>
 
             </Route>
+
+           <Route element={<AdminProtectedRoute/>}>
+             <Route path = "/admin" element={<AdminLayout/>}>
+                <Route path="" element={<AdminDashboard/>}/>
+                <Route path="product-managment" element={<ProductManagement/>}/>
+                <Route path="create-product" element={<CreateProduct/>}/>
+                <Route path="update-product/:productId" element={<UpdateProduct/>}/>
+            </Route>
+           </Route>
+
+            <Route path="/admin/login" element = {<AdminLogin/>}></Route>
+
         </>
     )
 )

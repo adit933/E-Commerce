@@ -15,7 +15,8 @@ import {
     setDefault, 
     getAddress, 
     updateAddress, 
-    deleteAddress } from "../controllers/user.controller.js";
+    deleteAddress, 
+    getAdminDashBoardStats} from "../controllers/user.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
 
@@ -35,6 +36,8 @@ router.route("/register").post(
 router.route("/login").post(loginUser)
 
 router.route("/logout").post(verifyJWT , logOutUser)
+
+router.route("/dashBoard").get(verifyJWT , isAdmin , getAdminDashBoardStats)
 
 router.route("/refresh-token").post(refreshAccessToken)
 

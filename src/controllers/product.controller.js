@@ -48,15 +48,9 @@ const createProduct = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Stock is required")
     }
 
-    // ---------------------------
-    // 3. Convert to numbers
-    // ---------------------------
     const numericPrice = Number(price)
     const numericStock = Number(stock)
 
-    // ---------------------------
-    // 4. Validate numbers
-    // ---------------------------
     if (isNaN(numericPrice)) {
         throw new ApiError(400, "Invalid price")
     }
@@ -73,9 +67,6 @@ const createProduct = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Stock cannot be negative")
     }
 
-    // ---------------------------
-    // 5. Optional field: discount
-    // ---------------------------
     let numericDiscount = null
 
     if (discountPercentage != null) {
@@ -90,9 +81,6 @@ const createProduct = asyncHandler(async (req, res) => {
         }
     }
 
-    // ---------------------------
-    // 6. Image validation
-    // ---------------------------
     const imageLocalPath = req.files?.image?.[0]?.path
 
     if (!imageLocalPath) {
@@ -114,24 +102,22 @@ const createProduct = asyncHandler(async (req, res) => {
     updateField.stock = numericStock
     updateField.category = category.trim()
     updateField.brand = brand.trim()
-    updateField.image = uploadedImage.url
+    updateField.images = [
+        {
+            url: uploadedImage.url
+        }
+    ]
 
     if (numericDiscount != null) {
         updateField.discountPercentage = numericDiscount
     }
 
-    // ---------------------------
-    // 8. Create product
-    // ---------------------------
     const createdProduct = await Product.create(updateField)
 
     if (!createdProduct) {
         throw new ApiError(500, "Failed to create product")
     }
 
-    // ---------------------------
-    // 9. Response
-    // ---------------------------
     return res.status(201).json(
         new ApiResponse(
             201,
@@ -141,15 +127,15 @@ const createProduct = asyncHandler(async (req, res) => {
     )
 })
 
-const getAllProducts = asyncHandler(async (req , res) => {
+const getAllProducts = asyncHandler(async (req, res) => {
 
     // const {page = 1 , limit = 20} = req.query
 
     const limit_product = 20
 
-    const page = Math.max(1 , Number(req.query.page) || 1)
+    const page = Math.max(1, Number(req.query.page) || 1)
 
-    const limit = Math.min(100 , Math.max(1, Number(req.query.limit) || 20))
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
 
     const skip = (page - 1) * limit
 
@@ -157,11 +143,13 @@ const getAllProducts = asyncHandler(async (req , res) => {
     // .skip(skip) // the following two are for pagination for representing limited products
     // .limit(limit)
 
-    const [products , totalProducts] = await Promise.all([
+    const [products, totalProducts] = await Promise.all([
 
-        Product.find({})
-        .skip(skip)
-        .limit(limit),
+        Product.find({
+            isActive: true
+        })
+            .skip(skip)
+            .limit(limit),
 
 
         Product.countDocuments({})
@@ -171,58 +159,55 @@ const getAllProducts = asyncHandler(async (req , res) => {
     const totalPages = Math.ceil(totalProducts / limit)
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            {
-                products,
-                currentPage : page,
-                totalPages,
-                totalProducts
-            },
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    products,
+                    currentPage: page,
+                    totalPages,
+                    totalProducts
+                },
 
-            "Products fetched successfully !!!"
+                "Products fetched successfully !!!"
+            )
         )
-    )
 })
 
-const getProductById = asyncHandler(async(req , res) => {
+const getProductById = asyncHandler(async (req, res) => {
 
-    const {productId} = req.params
+    const { productId } = req.params
 
-    if(!productId)
-    {
-        throw new ApiError(400 , "Invalid Product ID !!!")
+    if (!productId) {
+        throw new ApiError(400, "Invalid Product ID !!!")
     }
 
     const product = await Product.findOne({
-        _id : productId
+        _id: productId
     })
 
-    if(!product)
-    {
-        throw new ApiError(404 , "The Product does not Exists !!!")
+    if (!product) {
+        throw new ApiError(404, "The Product does not Exists !!!")
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            product,
-            "Product Fetched Successfully !!!"
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                product,
+                "Product Fetched Successfully !!!"
+            )
         )
-    )
 })
 
-const updateProduct = asyncHandler(async(req , res) => {
-    
-    const {productId} = req.params
+const updateProduct = asyncHandler(async (req, res) => {
 
-    if(!mongoose.Types.ObjectId.isValid(productId))
-    {
-        throw new ApiError(400 , "Invalid Product Id !!!")
+    const { productId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        throw new ApiError(400, "Invalid Product Id !!!")
     }
 
     const updateField = {}
@@ -253,35 +238,29 @@ const updateProduct = asyncHandler(async(req , res) => {
         updateField.brand = brand
     }
 
-    if(price != null)
-    {
+    if (price != null) {
         const numericPrice = Number(price)
 
-        if(isNaN(numericPrice))
-        {
-            throw new ApiError(400 , "Enter a valid price !!!")
+        if (isNaN(numericPrice)) {
+            throw new ApiError(400, "Enter a valid price !!!")
         }
 
-        if(numericPrice < 0)
-        {
-            throw new ApiError(400 , "Negative Price is not allowed !!!")
+        if (numericPrice < 0) {
+            throw new ApiError(400, "Negative Price is not allowed !!!")
         }
 
         updateField.price = numericPrice
     }
 
-    if(stock != null)
-    {
+    if (stock != null) {
         const numericStock = Number(stock)
 
-        if(isNaN(numericStock))
-        {
-            throw new ApiError(400 , "Enter a valid Stock !!!")
+        if (isNaN(numericStock)) {
+            throw new ApiError(400, "Enter a valid Stock !!!")
         }
 
-        if(numericStock < 0)
-        {
-            throw new ApiError(400 , "Negative Stock is not allowed !!!")
+        if (numericStock < 0) {
+            throw new ApiError(400, "Negative Stock is not allowed !!!")
         }
 
         updateField.stock = numericStock
@@ -289,138 +268,120 @@ const updateProduct = asyncHandler(async(req , res) => {
 
     const imageLocalPath = req.files?.image?.[0]?.path
 
-    if(imageLocalPath)
-    {
+    if (imageLocalPath) {
         const uploadedImage = await uploadOnCloudinary(imageLocalPath)
 
-        if(!uploadedImage?.url)
-        {
-            throw new ApiError(400 , "Image Upload Failed !!! ")
+        if (!uploadedImage?.url) {
+            throw new ApiError(400, "Image Upload Failed !!! ")
         }
 
         updateField.image = uploadedImage?.url
     }
 
-    if(discountPercentage != null)
-    {
+    if (discountPercentage != null) {
         const numericDiscount = Number(discountPercentage)
 
-        if(isNaN(numericDiscount))
-        {
-            throw new ApiError(400 , "Invalid Discount Percentage !!!")
+        if (isNaN(numericDiscount)) {
+            throw new ApiError(400, "Invalid Discount Percentage !!!")
         }
 
-        if(numericDiscount < 0 || numericDiscount > 100)
-        {
-            throw new ApiError(400 , "Discount Percentage should be between 0 and 100 !!!")
+        if (numericDiscount < 0 || numericDiscount > 100) {
+            throw new ApiError(400, "Discount Percentage should be between 0 and 100 !!!")
         }
 
         updateField.discountPercentage = numericDiscount
     }
 
-    if(Object.keys(updateField).length === 0) // user provided no value therefore updatefield is empty
+    if (Object.keys(updateField).length === 0) // user provided no value therefore updatefield is empty
     {
-        return res
-        .status(200)
-        .json(
-            new ApiResponse (
-                200,
-                updatedProduct,
-                "Product up to Date !!! "
-            )
-        )
+        throw new ApiError(400, "No changes provided.");
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
 
         productId,
         {
-            $set : updateField
+            $set: updateField
         },
         {
-            new : true
+            new: true
         }
     )
 
-    if(!updatedProduct)
-    {
-        throw new ApiError(404 , "No Such Product Exists !!! ")
+    if (!updatedProduct) {
+        throw new ApiError(404, "No Such Product Exists !!! ")
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            updatedProduct,
-            "Product Updated Successfully !!! "
-        )
-    ) 
-})
-
-const deleteProduct = asyncHandler(async (req , res) => {
-
-    const {productId} = req.params
-
-    if(!mongoose.Types.ObjectId.isValid(productId))
-    {
-        throw new ApiError(400 , "Invalid Product Id !!! ")
-    }
-
-    const deletedProduct = await Product.findByIdAndDelete(productId)
-
-    if(!deletedProduct)
-    {
-        throw new ApiError(404 , "No such Product found")
-    }
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            deletedProduct,
-            "Product Deleted Successfully !!!"
-        )
-    )
-})
-
-const searchProducts = asyncHandler(async(req , res) => {
-
-    const {keyword} = req.query
-
-    if(!keyword?.trim())
-    {
-        throw new ApiError(400 , "Invalid Product Selected !!! ")
-    }
-
-    const searchedProducts = await Product.find({
-        $or : [{
-            name : {
-                $regex : keyword,
-                $options : "i"
-            }
-        } , 
-        {
-            brand : {
-                $regex : keyword,
-                $options : "i"
-            }
-        }
-    ]
-    })
-
-    if(searchedProducts.length === 0)
-    {
-        return res
         .status(200)
         .json(
             new ApiResponse(
                 200,
-                [],
-                "There Are no Products with for the following word !!!"
+                updatedProduct,
+                "Product Updated Successfully !!! "
             )
         )
+})
+
+const deleteProduct = asyncHandler(async (req, res) => {
+
+    const { productId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        throw new ApiError(400, "Invalid Product Id !!! ")
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete(productId)
+
+    if (!deletedProduct) {
+        throw new ApiError(404, "No such Product found")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                deletedProduct,
+                "Product Deleted Successfully !!!"
+            )
+        )
+})
+
+const searchProducts = asyncHandler(async (req, res) => {
+
+    const { keyword } = req.query
+
+    if (!keyword?.trim()) {
+        throw new ApiError(400, "Invalid Product Selected !!! ")
+    }
+
+    const searchedProducts = await Product.find({
+        $or: [{
+            name: {
+                $regex: keyword,
+                $options: "i"
+            }
+        },
+        {
+            brand: {
+                $regex: keyword,
+                $options: "i"
+            }
+        }
+        ]
+    })
+
+    if (searchedProducts.length === 0) {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    [],
+                    "There Are no Products with for the following word !!!"
+                )
+            )
     }
 
     return res
@@ -434,9 +395,9 @@ const searchProducts = asyncHandler(async(req , res) => {
         )
 })
 
-const filterProducts = asyncHandler(async(req , res) => {
+const filterProducts = asyncHandler(async (req, res) => {
 
-    const {brand , category , minPrice , maxPrice , keyword} = req.query
+    const { brand, category, minPrice, maxPrice, keyword } = req.query
 
     if (minPrice && !Number.isFinite(Number(minPrice))) {
         throw new ApiError(400, "Invalid minimum price");
@@ -452,62 +413,54 @@ const filterProducts = asyncHandler(async(req , res) => {
 
     const filterField = {}
 
-    if(brand?.trim())
-    {
+    if (brand?.trim()) {
         filterField.brand = brand
     }
 
-    if(category)
-    {
-        if(!mongoose.Types.ObjectId.isValid(category))
-        {
-             throw new ApiError(400, "Invalid category ID");
+    if (category) {
+        if (!mongoose.Types.ObjectId.isValid(category)) {
+            throw new ApiError(400, "Invalid category ID");
         }
 
         filterField.category = category
     }
 
-    
 
-    if(minPrice || maxPrice)
-    {
+
+    if (minPrice || maxPrice) {
         filterField.price = {}
 
-        if(minPrice)
-        {
+        if (minPrice) {
             filterField.price.$gte = Number(minPrice)
         }
 
-        if(maxPrice)
-        {
+        if (maxPrice) {
             filterField.price.$lte = Number(maxPrice)
         }
     }
 
-    if(keyword?.trim())
-    {
+    if (keyword?.trim()) {
         filterField.name = {
-            $regex : keyword.trim(),
-            $options : "i"
+            $regex: keyword.trim(),
+            $options: "i"
         }
     }
 
     const filteredProducts = await Product.find(filterField)
 
-    if(filteredProducts.length === 0)
-    {
+    if (filteredProducts.length === 0) {
         return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                [],
-                "No Products that belong to this category!!!"
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    [],
+                    "No Products that belong to this category!!!"
+                )
             )
-        )
     }
 
-    
+
     return res
         .status(200)
         .json(
@@ -519,141 +472,169 @@ const filterProducts = asyncHandler(async(req , res) => {
         )
 })
 
-const toggleFeaturedProduct = asyncHandler(async(req , res) => {
-    const {productId} = req.params
-    
-    if(!mongoose.Types.ObjectId.isValid(productId))
-    {
-        throw new ApiError(400 , "Invalid Product Selected !!!")
+const toggleFeaturedProduct = asyncHandler(async (req, res) => {
+    const { productId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        throw new ApiError(400, "Invalid Product Selected !!!")
     }
 
     const product = await Product.findById(productId)
 
-    if(!product)
-    {
-        throw new ApiError(404 , "No such Product Exists !!! ")
+    if (!product) {
+        throw new ApiError(404, "No such Product Exists !!! ")
     }
 
     product.isFeatured = !product.isFeatured
 
     let message = ""
 
-    if(product.isFeatured)
-    {
+    if (product.isFeatured) {
         message = " Product Got Featured !!!"
     }
 
-    else
-    {
+    else {
         message = "Product Got Removed from being Featured !!!"
     }
 
-    await product.save({validateBeforeSave : false})
+    await product.save({ validateBeforeSave: false })
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            {},
-           message
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                message
+            )
         )
-    )
 })
 
-const toggleIsActive = asyncHandler(async(req , res) => {
-    const {productId} = req.params
-    
-    if(!mongoose.Types.ObjectId.isValid(productId))
-    {
-        throw new ApiError(400 , "Invalid Product Selected !!!")
+const toggleIsActive = asyncHandler(async (req, res) => {
+    const { productId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        throw new ApiError(400, "Invalid Product Selected !!!")
     }
 
     const product = await Product.findById(productId)
 
-    if(!product)
-    {
-        throw new ApiError(404 , "No such Product Exists !!! ")
+    if (!product) {
+        throw new ApiError(404, "No such Product Exists !!! ")
     }
 
     product.isActive = !product.isActive
 
     let message = ""
 
-    if(product.isActive)
-    {
+    if (product.isActive) {
         message = "Product Status Active !!!"
     }
 
-    else
-    {
+    else {
         message = "Product Status Inactive !!!"
     }
 
-    product.save({validateBeforeSave : false})
+    await product.save({ validateBeforeSave: false })
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            product,
-            message
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                product,
+                message
+            )
         )
-    )
 })
 
-const getFeaturedProducts = asyncHandler(async(req , res) => {
-    
+const getFeaturedProducts = asyncHandler(async (req, res) => {
+
     const featuredProduct = await Product.find({
-        isFeatured : true
+        isFeatured: true
     })
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            featuredProduct,
-            "Fetched all Featured Products !!!"
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                featuredProduct,
+                "Fetched all Featured Products !!!"
+            )
         )
-    )
 })
 
-const filterByCategory = asyncHandler(async(req , res) => {
-    const {categoryId} = req.params
+const filterByCategory = asyncHandler(async (req, res) => {
+    const { categoryId } = req.params
 
-    if(!mongoose.Types.ObjectId.isValid(categoryId))
-    {
-        throw new ApiError(400 , "Invalid Category Selected !!!")
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        throw new ApiError(400, "Invalid Category Selected !!!")
     }
 
     const categoryProducts = await Product.find({
-        category : categoryId
+        category: categoryId
     })
 
     let message = ""
 
-    if(categoryProducts.length === 0)
-    {
+    if (categoryProducts.length === 0) {
         message = "There are no products for this Category !!!"
     }
 
-    else
-    {
+    else {
         message = "The following are the products for this category !!!!"
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-        200,
-        categoryProducts.length === 0 ? [] : categoryProducts,
-        message
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                categoryProducts.length === 0 ? [] : categoryProducts,
+                message
+            )
         )
-    )
 })
+
+const getAllProductsForAdmin = asyncHandler(async (req, res) => {
+
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+
+    const limit = Math.min(
+        100,
+        Math.max(1, Number(req.query.limit) || 20)
+    );
+
+    const skip = (page - 1) * limit;
+
+    const [products, totalProducts] = await Promise.all([
+
+        Product.find({})
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+
+        Product.countDocuments({})
+    ]);
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                products,
+                currentPage: page,
+                totalPages,
+                totalProducts,
+                limit
+            },
+            "All products fetched successfully for admin"
+        )
+    );
+});
 
 export {
     createProduct,
@@ -666,6 +647,7 @@ export {
     toggleFeaturedProduct,
     toggleIsActive,
     getFeaturedProducts,
-    filterByCategory
+    filterByCategory,
+    getAllProductsForAdmin
 
 }

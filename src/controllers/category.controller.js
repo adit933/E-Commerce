@@ -261,6 +261,18 @@ const isActiveCategory = asyncHandler(async(req , res) => {
     )
 })
 
+const getAllActiveCategoriesAdmin = asyncHandler(async (req, res) => {
+    const categories = await Category.find({ isActive: true });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            categories,
+            "Active categories fetched successfully"
+        )
+    );
+});
+
 export {
     createCategory,
     getAllCategories,
@@ -268,5 +280,6 @@ export {
     deleteCategory,
     toggleIsActive,
     searchCategory,
-    isActiveCategory
+    isActiveCategory,
+    getAllActiveCategoriesAdmin
 }

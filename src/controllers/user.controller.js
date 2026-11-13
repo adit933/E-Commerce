@@ -6,6 +6,7 @@ import mongoose from "mongoose"
 import { User } from "../models/user.models.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
+import { Product } from "../models/product.models.js"
 
 //for creating admin manually update one of the accounts in the mongo db atlas
 
@@ -748,6 +749,30 @@ const deleteAddress = asyncHandler(async(req , res) => {
 })
 
 
+const getAdminDashBoardStats = asyncHandler(async (req , res) => {
+    
+    const [totalUsers , totalProducts] = await Promise.all([
+        User.countDocuments({role : "user"}),
+        Product.countDocuments({isActive : true})
+    ])
+
+    const dashBoardStats = {
+        totalUsers,
+        totalProducts
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            dashBoardStats,
+            "Stats fetched Suceesfully !!!"
+        )
+    )
+
+})
+
 
 
 export {
@@ -765,6 +790,7 @@ export {
     setDefault,
     getAddress,
     updateAddress,
-    deleteAddress
+    deleteAddress,
+    getAdminDashBoardStats
 }
 

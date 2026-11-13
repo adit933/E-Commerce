@@ -4,8 +4,13 @@ import Hero from "../components/Hero";
 import Footer from "../components/Footer";
 import FeaturedProduct from "../components/FeaturedProductCard";
 import Category from "../components/Category";
+import { useLocation } from "react-router-dom";
 
 function Home() {
+
+    const location = useLocation()
+
+    const err = location.state?.error
 
     console.log("HOME IS RENDERING");
 
@@ -112,6 +117,13 @@ function Home() {
 
     return (
         <>
+
+            {/* {err && 
+            
+                <div className="error-message">
+                    {error}
+                </div>
+            } */}
 
             <Hero />
 

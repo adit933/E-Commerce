@@ -4,6 +4,7 @@ import { isAdmin } from "../middleware/admin.middleware.js";
 import { 
     createCategory,
     deleteCategory,
+    getAllActiveCategoriesAdmin,
     getAllCategories,
     isActiveCategory,
     searchCategory,
@@ -16,6 +17,8 @@ const router = Router()
 router.route("/category").post(verifyJWT , isAdmin , createCategory)
 
 router.route("/category").get(getAllCategories)
+
+router.route("/admin/category").get(verifyJWT , isAdmin , getAllActiveCategoriesAdmin)
 
 router.route("/category/search").get(searchCategory)
 
