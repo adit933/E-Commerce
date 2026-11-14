@@ -120,6 +120,10 @@ const userSchema = new Schema({
     isVerified : {
         type : Boolean,
         default : null
+    },
+    
+    adminRefreshToken: {
+    type: String
     }
 },
     {

@@ -1,23 +1,21 @@
+
 import React, { useContext } from "react";
-import {AuthContext} from "../../context/AuthContext"
+import { AdminAuthContext } from "../../context/AdminAuthContext.jsx";
 import { Navigate, Outlet } from "react-router-dom";
 
 const AdminProtectedRoute = () => {
-    const {user} = useContext(AuthContext)
 
-    if(!user)
-    {
-        return <Navigate to="/admin/login" replace/>
+    const { admin, loading } = useContext(AdminAuthContext);
+
+    if (loading) {
+        return <div>Loading...</div>;
     }
 
-    if(user?.role !== "admin")
-    {
-        return <Navigate to = "/" replace state={{
-            error : "Access Denied! You are not authorized to access admin pages."
-        }}/>
+    if (!admin) {
+        return <Navigate to="/admin/login" replace />;
     }
 
-    return <Outlet/>
-}
+    return <Outlet />;
+};
 
-export default AdminProtectedRoute
+export default AdminProtectedRoute;

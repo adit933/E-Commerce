@@ -171,7 +171,7 @@ function AdminSidebar() {
     const navItems = [
         { name: "Dashboard", path: "/admin", icon: LayoutDashboard, end: true },
         { name: "Products", path: "/admin/product-managment", icon: Package },
-        { name: "Categories", path: "/admin/categories", icon: Tags },
+        { name: "Categories", path: "/admin/category-managment", icon: Tags },
         { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
         { name: "Users", path: "/admin/users", icon: Users }
     ];

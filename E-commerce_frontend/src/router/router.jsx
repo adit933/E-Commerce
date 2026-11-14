@@ -19,6 +19,8 @@ import AdminProtectedRoute from "../admin/pages/AdminProtectedRoute";
 import ProductManagement from "../admin/pages/ProductManagment";
 import CreateProduct from "../admin/pages/CreateProduct";
 import UpdateProduct from "../admin/pages/UpdateProduct";
+import CategoryManagment from "../admin/pages/CategoryManagment";
+import UpdateCategory from "../admin/pages/UpdateCategory";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -46,10 +48,13 @@ const router = createBrowserRouter(
                 <Route path="product-managment" element={<ProductManagement/>}/>
                 <Route path="create-product" element={<CreateProduct/>}/>
                 <Route path="update-product/:productId" element={<UpdateProduct/>}/>
+                <Route path="category-managment" element={<CategoryManagment/>}/>
+                <Route path="update-category/:categoryId" element={<UpdateCategory/>}/>
             </Route>
            </Route>
 
             <Route path="/admin/login" element = {<AdminLogin/>}></Route>
+
 
         </>
     )

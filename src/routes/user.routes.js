@@ -16,9 +16,13 @@ import {
     getAddress, 
     updateAddress, 
     deleteAddress, 
-    getAdminDashBoardStats} from "../controllers/user.controller.js";
-import { verifyJWT } from "../middleware/auth.middleware.js";
+    getAdminDashBoardStats,
+    loginAdmin,
+    logOutAdmin,
+    getCurrentAdmin} from "../controllers/user.controller.js";
+import { verifyJWT , verifyAdminJWT } from "../middleware/auth.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
+// import AdminLogin from "../../E-commerce_frontend/src/admin/pages/AdminLoginPage.jsx";
 
 const router = Router()
 
@@ -35,13 +39,19 @@ router.route("/register").post(
 
 router.route("/login").post(loginUser)
 
+router.route("/admin/login").post(loginAdmin)
+
 router.route("/logout").post(verifyJWT , logOutUser)
 
-router.route("/dashBoard").get(verifyJWT , isAdmin , getAdminDashBoardStats)
+router.post("/admin/logout", verifyAdminJWT, isAdmin , logOutAdmin);
+
+router.route("/dashBoard").get(verifyAdminJWT , isAdmin , getAdminDashBoardStats)
 
 router.route("/refresh-token").post(refreshAccessToken)
 
 router.route("/user").get(verifyJWT , getCurrentUser)
+
+router.route("/admin").get(verifyAdminJWT, getCurrentAdmin);
 
 router.route("/profile").patch(verifyJWT , updateProfile)
 
@@ -61,6 +71,6 @@ router.route("/address/:addressId").patch(verifyJWT , updateAddress)
 
 router.route("/address/:addressId").delete(verifyJWT , deleteAddress)
 
-router.route("/:userId").get(verifyJWT , isAdmin , getUserById)
+router.route("/:userId").get(verifyAdminJWT , isAdmin , getUserById)
 
 export {router}

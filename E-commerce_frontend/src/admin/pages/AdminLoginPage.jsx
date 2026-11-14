@@ -12,11 +12,11 @@ import {
     Sparkles
 } from "lucide-react";
 
-import { AuthContext } from "../../context/AuthContext";
+import { AdminAuthContext } from "../../context/AdminAuthContext.jsx";
 
 function AdminLogin() {
     const navigate = useNavigate();
-    const { setUser } = useContext(AuthContext);
+    const { setAdmin, refreshAdmin } = useContext(AdminAuthContext);
     const shouldReduceMotion = useReducedMotion();
 
     const [data, setData] = useState({
@@ -46,7 +46,7 @@ function AdminLogin() {
             setError("");
 
             const response = await fetch(
-                "http://localhost:8000/api/v1/users/login",
+                "http://localhost:8000/api/v1/users/admin/login",
                 {
                     method: "POST",
                     credentials: "include",
@@ -67,7 +67,14 @@ function AdminLogin() {
                 throw new Error("Access denied. Admin account required.");
             }
 
-            setUser(result.data);
+            const admin = await refreshAdmin();
+
+            if (!admin) {
+                throw new Error("Admin authentication verification failed.");
+            }
+
+            setAdmin(admin);
+
             navigate("/admin");
 
         } catch (error) {

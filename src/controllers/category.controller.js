@@ -2,65 +2,62 @@ import { Category } from "../models/category.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
+import { Product } from "../models/product.models.js"
 
-const createCategory = asyncHandler(async(req , res) => {
+const createCategory = asyncHandler(async (req, res) => {
 
-    const {name , description} = req.body
+    const { name, description } = req.body
 
-    if(!name?.trim())
-    {
-        throw new ApiError(400 , "Category Name is Required !!!")
+    if (!name?.trim()) {
+        throw new ApiError(400, "Category Name is Required !!!")
     }
 
-    if(!description?.trim())
-    {
-        throw new ApiError(400 , "Description of the product is Required !!!")
+    if (!description?.trim()) {
+        throw new ApiError(400, "Description of the product is Required !!!")
     }
 
     const existedCategory = await Category.findOne({
-        name : name.trim(),
-        description : description.trim()
+        name: name.trim(),
+        description: description.trim()
     })
 
-    if(existedCategory)
-    {
-        throw new ApiError(409 , "Category Already Exists !!!")
+    if (existedCategory) {
+        throw new ApiError(409, "Category Already Exists !!!")
     }
 
     const category = await Category.create({
-        name : name.trim(),
-        description : description.trim()
+        name: name.trim(),
+        description: description.trim()
     })
 
-    if(!category)
-    {
-        throw new ApiError(500 , "Failed to Create the Category !!! ")
+    if (!category) {
+        throw new ApiError(500, "Failed to Create the Category !!! ")
     }
 
     return res
-    .status(201)
-    .json(
-        new ApiResponse(
-            201,
-            category,
-            "Successfully Added The Category !!!"
+        .status(201)
+        .json(
+            new ApiResponse(
+                201,
+                category,
+                "Successfully Added The Category !!!"
+            )
         )
-    )
 })
 
-const getAllCategories = asyncHandler(async(req , res) => {
+const getAllCategories = asyncHandler(async (req, res) => {
 
-    const page = Math.max(1 , Number(req.query.page) || 1)
+    const page = Math.max(1, Number(req.query.page) || 1)
 
-    const limit = Math.min(20 , Math.max(1 , Number(req.query.limit)|| 6))
+    const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 6))
 
     const skip = (page - 1) * limit
 
-    const [categories , totalCategories] = await Promise.all([
+    const [categories, totalCategories] = await Promise.all([
 
         Category.find({})
-        .skip(skip)
-        .limit(limit),
+            .skip(skip)
+            .limit(limit),
 
         Category.countDocuments()
 
@@ -68,197 +65,207 @@ const getAllCategories = asyncHandler(async(req , res) => {
 
     const totalPages = Math.ceil(totalCategories / limit)
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            {
-                categories,
-                currentPage : page,
-                totalPages,
-                totalCategories
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    categories,
+                    currentPage: page,
+                    totalPages,
+                    totalCategories
 
-            },
-            "Categories Fetched Successfully !!!"
+                },
+                "Categories Fetched Successfully !!!"
+            )
         )
-    )
 })
 
-const updateCategory = asyncHandler(async(req , res) => {
+const updateCategory = asyncHandler(async (req, res) => {
 
-    const {categoryId} = req.params
+    const { categoryId } = req.params
 
-    if(!categoryId)
-    {
-        throw new ApiError(400 , "Invalid Category Id !!!")
+    if (!categoryId) {
+        throw new ApiError(400, "Invalid Category Id !!!")
     }
 
-    const {name , description} = req.body
+    const { name, description } = req.body
 
     const updatefield = {}
 
-    if(name?.trim())
-    {
+    if (name?.trim()) {
         updatefield.name = name.trim()
     }
 
-    if(description?.trim())
-    {
+    if (description?.trim()) {
         updatefield.description = description.trim()
     }
 
     const updatedCategory = await Category.findByIdAndUpdate(
         categoryId,
         {
-            $set : updatefield
+            $set: updatefield
         },
         {
-            new : true
+            new: true
         }
     )
 
-    if(!updatedCategory)
-    {
-        throw new ApiError(404 , "No Such Category Exists !!!")
+    if (!updatedCategory) {
+        throw new ApiError(404, "No Such Category Exists !!!")
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            updatedCategory,
-            "Category Updated Successfully !!!"
-        )
-    )
-
-})
-
-const deleteCategory = asyncHandler(async(req , res) => {
-
-    const {categoryId} = req.params
-
-    if(!categoryId)
-    {
-        throw new ApiError(400 , "Invalid Category Id !!!")
-    }  
-
-    const deletedCategory = await Category.findByIdAndDelete(categoryId)
-
-    if(!deletedCategory)
-    {
-        throw new ApiError(404 , "No Such Category Exists !!!")
-    }
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            {},
-            "Category Deleted Successfully !!!"
-        )
-    )
-})
-
-const toggleIsActive = asyncHandler(async(req , res) => {
-
-    const {categoryId} = req.params
-    if(!categoryId)
-    {
-        throw new ApiError(400 , "Invalid Category Id !!!")
-    } 
-
-    const toggledCategory = await Category.findById(categoryId)
-
-    if(!toggledCategory)
-    {
-        throw new ApiError(404 , "No Such Category Exists !!!")
-    }
-
-    toggledCategory.isActive = !toggledCategory.isActive
-
-    await toggledCategory.save({validateBeforeSave : false})
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            toggledCategory,
-            "Activity status toggled successfully !!!"
-        )
-    )
-})
-
-const searchCategory = asyncHandler(async(req , res) => {
-    
-    const {keyword} = req.query
-
-    if(!keyword?.trim())
-    {
-        throw new ApiError(400 , "Invalid Product Selected !!!")
-    }
-
-    const searchedCategory = await Category.find({
-        name : {
-            $regex : keyword,
-            $options: "i"
-        }
-    })
-
-    if(searchedCategory.length === 0)
-    {
-        return res
         .status(200)
         .json(
             new ApiResponse(
                 200,
-                [],
-                "No Category for the searched product !!!"
+                updatedCategory,
+                "Category Updated Successfully !!!"
             )
         )
-    }
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            searchedCategory,
-            "Category got successfully !!!"
-        )
-    )
 
 })
 
-const isActiveCategory = asyncHandler(async(req , res) => {
+const deleteCategory = asyncHandler(async (req, res) => {
+
+    const { categoryId } = req.params
+    const { force } = req.query
+
+    if (!categoryId) {
+        throw new ApiError(400, "Invalid Category Id !!!")
+    }
+
+    const productCount = await Product.countDocuments({
+        category: categoryId
+    })
+
+    if (productCount > 0 && force !== "true") {
+        return res.status(409).json(
+            new ApiResponse(
+                409,
+                { productCount },
+                `This category contains ${productCount} products. Do you want to delete the category and its products?`
+            )
+        );
+    }
+
+    if(productCount > 0)
+    {
+        await Product.deleteMany({
+            category : categoryId
+        })
+    }
+
+    const deletedCategory = await Category.findByIdAndDelete(categoryId)
+
+    if (!deletedCategory) {
+        throw new ApiError(404, "No Such Category Exists !!!")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "Category Deleted Successfully !!!"
+            )
+        )
+})
+
+const toggleIsActive = asyncHandler(async (req, res) => {
+
+    const { categoryId } = req.params
+    if (!categoryId) {
+        throw new ApiError(400, "Invalid Category Id !!!")
+    }
+
+    const toggledCategory = await Category.findById(categoryId)
+
+    if (!toggledCategory) {
+        throw new ApiError(404, "No Such Category Exists !!!")
+    }
+
+    toggledCategory.isActive = !toggledCategory.isActive
+
+    await toggledCategory.save({ validateBeforeSave: false })
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                toggledCategory,
+                "Activity status toggled successfully !!!"
+            )
+        )
+})
+
+const searchCategory = asyncHandler(async (req, res) => {
+
+    const { keyword } = req.query
+
+    if (!keyword?.trim()) {
+        throw new ApiError(400, "Invalid Product Selected !!!")
+    }
+
+    const searchedCategory = await Category.find({
+        name: {
+            $regex: keyword,
+            $options: "i"
+        }
+    })
+
+    if (searchedCategory.length === 0) {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    [],
+                    "No Category for the searched product !!!"
+                )
+            )
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                searchedCategory,
+                "Category got successfully !!!"
+            )
+        )
+
+})
+
+const isActiveCategory = asyncHandler(async (req, res) => {
 
     const activeCategories = await Category.find({
-        isActive : true
+        isActive: true
     })
 
     let message = ""
 
-    if(activeCategories.length === 0)
-    {
+    if (activeCategories.length === 0) {
         message = "There are no Active Catgeories right now !!!"
     }
 
-    else
-    {
+    else {
         message = "the following are the Active Categories"
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            activeCategories.length === 0 ? [] : activeCategories,
-            message
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                activeCategories.length === 0 ? [] : activeCategories,
+                message
+            )
         )
-    )
 })
 
 const getAllActiveCategoriesAdmin = asyncHandler(async (req, res) => {
@@ -273,6 +280,65 @@ const getAllActiveCategoriesAdmin = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllCategoriesAdmin = asyncHandler(async (req, res) => {
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+
+    const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 6));
+
+    const skip = (page - 1) * limit;
+
+    const [categories, totalCategories] = await Promise.all([
+
+        Category.find({})
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+
+        Category.countDocuments()
+
+    ]);
+
+    const totalPages = Math.ceil(totalCategories / limit);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                categories,
+                currentPage: page,
+                totalPages,
+                totalCategories
+            },
+            "All Categories Fetched Successfully"
+        )
+    );
+});
+
+const getCategoryById = asyncHandler(async (req, res) => {
+
+    const { categoryId } = req.params;
+
+    if (!categoryId) {
+        throw new ApiError(400, "Invalid Category Id !!!");
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+        throw new ApiError(404, "No Such Category Exists !!!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            category,
+            "Category Fetched Successfully !!!"
+        )
+    );
+
+});
+
 export {
     createCategory,
     getAllCategories,
@@ -281,5 +347,7 @@ export {
     toggleIsActive,
     searchCategory,
     isActiveCategory,
-    getAllActiveCategoriesAdmin
+    getAllActiveCategoriesAdmin,
+    getAllCategoriesAdmin,
+    getCategoryById
 }

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middleware/auth.middleware.js";
+import { verifyJWT , verifyAdminJWT} from "../middleware/auth.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
 import { 
     createPayment,
@@ -16,12 +16,12 @@ router.route("/payments/:orderId").post(verifyJWT , createPayment)
 
 router.route("/payments").get(verifyJWT , getMyPayment)
 
-router.route("/payments/:orderId").get(verifyJWT , isAdmin , getPaymentById)
+router.route("/payments/:orderId").get(verifyAdminJWT , isAdmin , getPaymentById)
 
-router.route("/payments/:orderId/:paymentId/complete").post(verifyJWT , isAdmin , markPaymentCompleted)
+router.route("/payments/:orderId/:paymentId/complete").post(verifyAdminJWT , isAdmin , markPaymentCompleted)
 
-router.route("/payments/:orderId/:paymentId/failed").post(verifyJWT , isAdmin , markPaymentAsFailed)
+router.route("/payments/:orderId/:paymentId/failed").post(verifyAdminJWT , isAdmin , markPaymentAsFailed)
 
-router.route("/payments/:orderId/:paymentId/refund").post(verifyJWT , isAdmin , markPaymentRefund)
+router.route("/payments/:orderId/:paymentId/refund").post(verifyAdminJWT , isAdmin , markPaymentRefund)
 
 export {router}

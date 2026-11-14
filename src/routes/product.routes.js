@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware.js";
 import { isAdmin } from "../middleware/admin.middleware.js";
-import { verifyJWT } from "../middleware/auth.middleware.js";
+import { verifyJWT , verifyAdminJWT} from "../middleware/auth.middleware.js";
 import {
     createProduct,
     deleteProduct,
@@ -22,7 +22,7 @@ const router = Router()
 router.route("/products").get(getAllProducts) // query parameters need not to be mentioned in the router definition
 //also no verifyjwt beacuse it constututes the landing page of the website
 
-router.route("/products").post(verifyJWT , isAdmin ,
+router.route("/products").post(verifyAdminJWT , isAdmin ,
 
         upload.fields([{
             name : "image",
@@ -37,13 +37,13 @@ router.route("/products/featured").get(getFeaturedProducts)
 
 router.route("/products/filter").get(filterProducts)
 
-router.route("/products/admin").get(verifyJWT , isAdmin , getAllProductsForAdmin)
+router.route("/products/admin").get(verifyAdminJWT , isAdmin , getAllProductsForAdmin)
 
 router.route("/products/category/:categoryId").get(filterByCategory)
 
-router.route("/products/:productId").get(verifyJWT , isAdmin ,getProductById)
+router.route("/products/:productId").get(verifyAdminJWT , isAdmin ,getProductById)
 
-router.route("/products/edit/:productId").patch(verifyJWT , isAdmin , 
+router.route("/products/edit/:productId").patch(verifyAdminJWT , isAdmin , 
     
     upload.fields([{
         name : "image",
@@ -52,11 +52,11 @@ router.route("/products/edit/:productId").patch(verifyJWT , isAdmin ,
     
     updateProduct)
 
-router.route("/products/:productId").delete(verifyJWT , isAdmin , deleteProduct)
+router.route("/products/:productId").delete(verifyAdminJWT , isAdmin , deleteProduct)
 
-router.route("/products/:productId/featured").patch(verifyJWT , isAdmin , toggleFeaturedProduct)
+router.route("/products/:productId/featured").patch(verifyAdminJWT , isAdmin , toggleFeaturedProduct)
 
-router.route("/products/:productId/isActive").patch(verifyJWT , isAdmin , toggleIsActive)
+router.route("/products/:productId/isActive").patch(verifyAdminJWT , isAdmin , toggleIsActive)
 
 
 
