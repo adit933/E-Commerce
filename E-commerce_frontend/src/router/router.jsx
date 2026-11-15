@@ -22,6 +22,8 @@ import UpdateProduct from "../admin/pages/UpdateProduct";
 import CategoryManagment from "../admin/pages/CategoryManagment";
 import UpdateCategory from "../admin/pages/UpdateCategory";
 import CreateCategory from "../admin/pages/CreateCategory";
+import AdminProcessing from "../admin/pages/AdminProcessing";
+import AdminShipped from "../admin/pages/AdminShipped";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -52,6 +54,8 @@ const router = createBrowserRouter(
                 <Route path="category-managment" element={<CategoryManagment/>}/>
                 <Route path="update-category/:categoryId" element={<UpdateCategory/>}/>
                 <Route path="create-category" element={<CreateCategory/>}/>
+                <Route path="order-managment" element={<AdminProcessing/>}/>
+                <Route path="shipped-order" element={<AdminShipped/>}/>
             </Route>
            </Route>
 

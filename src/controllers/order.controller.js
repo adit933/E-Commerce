@@ -213,43 +213,62 @@ const cancelOrder = asyncHandler(async (req, res) => {
     );
 });
 
-const getAllOrders = asyncHandler(async(req , res) => { // for admin to view 20 orders per page from newest order to oldest
-    const userId = req.user?._id
+const getOrdersByStatus = asyncHandler(async (req, res) => {
 
-    const page = Number(req.query.page) || 1
+    const { status } = req.params;
 
-    const limit = 20
+    const allowedStatus = [
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled"
+    ];
 
-    const skip = (page - 1) * limit
-
-    const allOrders = await Order.find()
-    .populate("orderItems.product")
-    .populate("user")
-    .sort({createdAt : -1})
-    .skip(skip)
-    .limit(20)
-
-    let message = ""
-
-    if(allOrders.length === 0)
-    {
-        message = "No Order !!!"
-    }
-    else
-    {
-        message = "Orders fetched Successfully !!!"
+    if (!allowedStatus.includes(status)) {
+        throw new ApiError(400, "Invalid order status");
     }
 
-    return res
-    .status(200)
-    .json(
+    const page = Number(req.query.page) || 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    const orders = await Order.find({
+        orderStatus: status
+    })
+        .populate("orderItems.product")
+        .populate("user")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+    const totalOrders = await Order.countDocuments({
+        orderStatus: status
+    });
+
+    const totalFetchedOrders = await Order.find({
+        orderStatus : status
+    })
+
+    const totalAmount = totalFetchedOrders.reduce((acc , curr) => {
+        return acc + curr.totalPrice
+    } , 0)
+
+    return res.status(200).json(
         new ApiResponse(
             200,
-            allOrders,
-            message
+            {
+                orders,
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                totalOrders,
+                totalAmount
+            },
+            orders.length === 0
+                ? "No Orders Found !!!"
+                : "Orders fetched Successfully !!!"
         )
-    )
-})
+    );
+});
 
 const getSingleOrder = asyncHandler(async(req , res) => {
     const userId = req.user?._id
@@ -489,7 +508,7 @@ export {
     getMyOrder,
     getOrderById,
     cancelOrder,
-    getAllOrders,
+    getOrdersByStatus,
     getSingleOrder,
     updateOrderStatus,
     markOrderPaid,

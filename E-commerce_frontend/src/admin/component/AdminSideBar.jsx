@@ -172,7 +172,7 @@ function AdminSidebar() {
         { name: "Dashboard", path: "/admin", icon: LayoutDashboard, end: true },
         { name: "Products", path: "/admin/product-managment", icon: Package },
         { name: "Categories", path: "/admin/category-managment", icon: Tags },
-        { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
+        { name: "Orders", path: "/admin/order-managment", icon: ShoppingCart },
         { name: "Users", path: "/admin/users", icon: Users }
     ];
 

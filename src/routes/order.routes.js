@@ -4,7 +4,7 @@ import {
     cancelOrder,
     createOrder,
     deleteOrder,
-    getAllOrders,
+    getOrdersByStatus,
     getMyOrder,
     getOrderById,
     getSingleOrder,
@@ -24,11 +24,16 @@ router.route("/orders/:orderId").get(verifyAdminJWT, isAdmin , getOrderById) // 
 
 router.route("/orders/:orderId").patch(verifyJWT , cancelOrder)
 
-router.route("/orders/allOrders").get(verifyAdminJWT , isAdmin , getAllOrders) // to get aLL the orders
+router.get(
+    "/orders/status/:status",
+    verifyAdminJWT,
+    isAdmin,
+    getOrdersByStatus
+); // to get aLL the orders
 
 router.route("/orders/single/:orderId").get(verifyJWT , getSingleOrder)
 
-router.route("/orders/:orderId").post(verifyAdminJWT , isAdmin , updateOrderStatus)
+router.route("/orders/:orderId/status").patch(verifyAdminJWT , isAdmin , updateOrderStatus)
 
 router.route("/orders/paid/:orderId").post(verifyAdminJWT , isAdmin , markOrderPaid)
 
