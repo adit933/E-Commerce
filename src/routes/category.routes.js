@@ -13,10 +13,11 @@ import {
     toggleIsActive,
     updateCategory,
  } from "../controllers/category.controller.js";
+ import { upload } from "../middleware/multer.middleware.js";
 
 const router = Router()
 
-router.route("/category").post(verifyAdminJWT , isAdmin , createCategory)
+router.route("/category").post(verifyAdminJWT , upload.none() , isAdmin , createCategory)
 
 router.route("/category").get(getAllCategories)
 

@@ -40,6 +40,31 @@ export const AdminAuthProvider = ({ children }) => {
         }
     }, []);
 
+    const logOutAdmin = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/users/admin/logout`, 
+                {
+                    method : "POST",
+                    credentials : "include"
+                }
+            )
+
+            const result = await response.json()
+
+            if(!response.ok)
+            {
+                throw new Error(409 , "Failed to logout !!")
+            }
+
+            setAdmin(null)
+
+            return result
+        } catch (error) {
+            console.error("Admin Logout Error:", error);
+            throw error;
+        }
+    }
+
     useEffect(() => {
         const getAdmin = async () => {
             try {
@@ -58,7 +83,8 @@ export const AdminAuthProvider = ({ children }) => {
                 admin,
                 setAdmin,
                 loading,
-                refreshAdmin
+                refreshAdmin,
+                logOutAdmin
             }}
         >
             {children}

@@ -21,6 +21,7 @@ import CreateProduct from "../admin/pages/CreateProduct";
 import UpdateProduct from "../admin/pages/UpdateProduct";
 import CategoryManagment from "../admin/pages/CategoryManagment";
 import UpdateCategory from "../admin/pages/UpdateCategory";
+import CreateCategory from "../admin/pages/CreateCategory";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
                 <Route path="update-product/:productId" element={<UpdateProduct/>}/>
                 <Route path="category-managment" element={<CategoryManagment/>}/>
                 <Route path="update-category/:categoryId" element={<UpdateCategory/>}/>
+                <Route path="create-category" element={<CreateCategory/>}/>
             </Route>
            </Route>
 

@@ -1,5 +1,7 @@
-import React from "react";
-import { Bell, UserCircle, Search } from "lucide-react";
+import React, { useContext } from "react";
+import { Bell, UserCircle, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AdminAuthContext } from "../../context/AdminAuthContext.jsx";
 
 const adminNavbarStyles = `
     .admin-navbar {
@@ -116,6 +118,19 @@ const adminNavbarStyles = `
 `;
 
 function AdminNavBar() {
+
+    const { logOutAdmin } = useContext(AdminAuthContext)
+    const navigate = useNavigate()
+
+    const logOutHandler = async () => {
+        try {
+            await logOutAdmin()
+            navigate("/admin/login", { replace: true })
+
+        } catch (error) {
+            console.error("LogOut Failed : ", error)
+        }
+    }
     return (
         <>
             <style>{adminNavbarStyles}</style>
@@ -164,6 +179,16 @@ function AdminNavBar() {
                         </div>
 
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={logOutHandler}
+                        className="admin-navbar-action"
+                        aria-label="Logout"
+                        title="Logout"
+                    >
+                        <LogOut size={19} />
+                    </button>
 
                 </div>
 

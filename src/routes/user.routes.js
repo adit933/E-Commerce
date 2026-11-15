@@ -43,7 +43,7 @@ router.route("/admin/login").post(loginAdmin)
 
 router.route("/logout").post(verifyJWT , logOutUser)
 
-router.post("/admin/logout", verifyAdminJWT, isAdmin , logOutAdmin);
+router.route("/admin/logout").post(verifyAdminJWT, isAdmin , logOutAdmin);
 
 router.route("/dashBoard").get(verifyAdminJWT , isAdmin , getAdminDashBoardStats)
 
