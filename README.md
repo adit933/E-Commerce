@@ -113,3 +113,53 @@ Never commit actual credentials or secret keys to GitHub.
 **Your Name**
 
 Full Stack E-Commerce Project
+
+
+## Screenshots
+
+### 1. Home Page
+
+![Home Page](screenshots/Screenshot%202026-11-18%20013831.png)
+
+![Home Page - Additional View](screenshots/Screenshot%202026-11-18%20013857.png)
+
+---
+
+### 2. Shop / Products Page
+
+![Shop Page](screenshots/Screenshot%202026-11-18%20013913.png)
+
+---
+
+### 3. Product Details
+
+![Product Details](screenshots/Screenshot%202026-11-18%20013930.png)
+
+---
+
+### 4. Shopping Cart
+
+![Shopping Cart](screenshots/Screenshot%202026-11-18%20013957.png)
+
+---
+
+### 5. Billing / Checkout
+
+![Checkout](screenshots/Screenshot%202026-11-18%20014013.png)
+
+---
+
+### 6. User Profile
+
+![User Profile](screenshots/Screenshot%202026-11-18%20014029.png)
+
+---
+
+### 7. Admin Dashboard
+
+![Admin Dashboard - Overview](screenshots/Screenshot%202026-11-18%20014049.png)
+
+![Admin Dashboard - Additional View 1](screenshots/Screenshot%202026-11-18%20014132.png)
+
+![Admin Dashboard - Additional View 2](screenshots/Screenshot%202026-11-18%20014146.png)
+
