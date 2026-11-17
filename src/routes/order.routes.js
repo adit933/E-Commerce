@@ -35,7 +35,7 @@ router.route("/orders/single/:orderId").get(verifyJWT , getSingleOrder)
 
 router.route("/orders/:orderId/status").patch(verifyAdminJWT , isAdmin , updateOrderStatus)
 
-router.route("/orders/paid/:orderId").post(verifyAdminJWT , isAdmin , markOrderPaid)
+router.route("/orders/paid/:orderId").patch(verifyAdminJWT , isAdmin , markOrderPaid)
 
 router.route("/orders/delivered/:orderId").post(verifyAdminJWT , isAdmin , markOrderDelivered)
 

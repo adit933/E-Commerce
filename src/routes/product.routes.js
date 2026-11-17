@@ -41,7 +41,7 @@ router.route("/products/admin").get(verifyAdminJWT , isAdmin , getAllProductsFor
 
 router.route("/products/category/:categoryId").get(filterByCategory)
 
-router.route("/products/:productId").get(verifyAdminJWT , isAdmin ,getProductById)
+router.route("/products/:productId").get(getProductById)
 
 router.route("/products/edit/:productId").patch(verifyAdminJWT , isAdmin , 
     

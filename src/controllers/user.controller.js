@@ -7,6 +7,7 @@ import { User } from "../models/user.models.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import { Product } from "../models/product.models.js"
+import { Order } from "../models/order.models.js"
 
 //for creating admin manually update one of the accounts in the mongo db atlas
 
@@ -829,15 +830,227 @@ const deleteAddress = asyncHandler(async (req, res) => {
 
 const getAdminDashBoardStats = asyncHandler(async (req, res) => {
 
-    const [totalUsers, totalProducts] = await Promise.all([
-        User.countDocuments({ role: "user" }),
-        Product.countDocuments({ isActive: true })
-    ])
+    const currentYear = new Date().getFullYear();
+    const LOW_STOCK_LIMIT = 5;
 
-    const dashBoardStats = {
+    const [
         totalUsers,
-        totalProducts
-    }
+        totalProducts,
+        totalOrders,
+        paidOrdersCount,
+        pendingOrdersCount,
+        lowStockProducts,
+        revenueResult,
+        monthlyRevenueResult,
+        orderStatusResult,
+        topProducts,
+        recentOrders
+    ] = await Promise.all([
+
+        // Total registered customers
+        User.countDocuments({ role: "user" }),
+
+        // Total active products
+        Product.countDocuments({ isActive: true }),
+
+        // All orders
+        Order.countDocuments(),
+
+        // Successfully paid orders
+        Order.countDocuments({
+            isPaid: true,
+            orderStatus: { $ne: "Cancelled" }
+        }),
+
+        // Unpaid, non-cancelled orders
+        Order.countDocuments({
+            isPaid: false,
+            orderStatus: { $ne: "Cancelled" }
+        }),
+
+        // Active products with low stock
+        Product.countDocuments({
+            isActive: true,
+            stock: { $lte: LOW_STOCK_LIMIT }
+        }),
+
+        // Total revenue from paid orders
+        Order.aggregate([
+            {
+                $match: {
+                    isPaid: true,
+                    orderStatus: { $ne: "Cancelled" }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: { $sum: "$totalPrice" }
+                }
+            }
+        ]),
+
+        // Monthly revenue for the current year
+        Order.aggregate([
+            {
+                $match: {
+                    isPaid: true,
+                    orderStatus: { $ne: "Cancelled" },
+                    paidAt: {
+                        $gte: new Date(currentYear, 0, 1),
+                        $lt: new Date(currentYear + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: "$paidAt" },
+                    revenue: { $sum: "$totalPrice" }
+                }
+            },
+            {
+                $sort: { _id: 1 }
+            }
+        ]),
+
+        // Orders grouped by their current status
+        Order.aggregate([
+            {
+                $group: {
+                    _id: "$orderStatus",
+                    count: { $sum: 1 }
+                }
+            }
+        ]),
+
+        // Top 5 selling products
+        Order.aggregate([
+            {
+                $match: {
+                    orderStatus: { $ne: "Cancelled" }
+                }
+            },
+            {
+                $unwind: "$orderItems"
+            },
+            {
+                $group: {
+                    _id: "$orderItems.product",
+                    totalSold: { $sum: "$orderItems.quantity" },
+                    totalRevenue: {
+                        $sum: {
+                            $multiply: [
+                                "$orderItems.price",
+                                "$orderItems.quantity"
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: { totalSold: -1 }
+            },
+            {
+                $limit: 5
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            {
+                $unwind: "$product"
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: "$product.name",
+                    image: { $arrayElemAt: ["$product.images.url", 0] },
+                    price: "$product.price",
+                    totalSold: 1,
+                    totalRevenue: 1
+                }
+            }
+        ]),
+
+        // Latest 5 orders
+        Order.find()
+            .populate("user", "fullName email")
+            .sort({ createdAt: -1 })
+            .limit(5)
+
+    ]);
+
+    // Extract total revenue
+    const totalRevenue = revenueResult[0]?.totalRevenue || 0;
+
+    // Calculate average order value
+    const averageOrderValue = paidOrdersCount > 0
+        ? Number((totalRevenue / paidOrdersCount).toFixed(2))
+        : 0;
+
+    // Fill all 12 months, including months with zero revenue
+    const monthNames = [
+        "Jan", "Feb", "Mar", "Apr",
+        "May", "Jun", "Jul", "Aug",
+        "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthlyRevenue = monthNames.map((month, index) => {
+
+        const monthData = monthlyRevenueResult.find(
+            item => item._id === index + 1
+        );
+
+        return {
+            month,
+            revenue: monthData ? monthData.revenue : 0
+        };
+    });
+
+    // Include all order statuses, even if their count is zero
+    const allowedStatuses = [
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled"
+    ];
+
+    const orderStatus = allowedStatuses.map(status => {
+
+        const statusData = orderStatusResult.find(
+            item => item._id === status
+        );
+
+        return {
+            status,
+            count: statusData ? statusData.count : 0
+        };
+    });
+
+    // Final dashboard response
+    const dashBoardStats = {
+        currentYear,
+
+        totalUsers,
+        totalProducts,
+        totalOrders,
+        totalRevenue,
+        averageOrderValue,
+
+        paidOrdersCount,
+        pendingOrdersCount,
+        lowStockProducts,
+
+        monthlyRevenue,
+        orderStatus,
+
+        topProducts,
+        recentOrders
+    };
 
     return res
         .status(200)
@@ -845,11 +1058,11 @@ const getAdminDashBoardStats = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200,
                 dashBoardStats,
-                "Stats fetched Suceesfully !!!"
+                "Dashboard Stats Fetched Successfully !!!"
             )
-        )
+        );
 
-})
+});
 
 
 

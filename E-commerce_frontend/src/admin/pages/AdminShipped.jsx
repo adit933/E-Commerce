@@ -1046,7 +1046,7 @@ function AdminShipped() {
 
                         <button
                             className="op-refresh-btn"
-                            onClick={() => navigate("/your-shipped-route")}
+                            onClick={() => navigate("/admin/delivered-order")}
                         >
 
                             <Truck size={15} />

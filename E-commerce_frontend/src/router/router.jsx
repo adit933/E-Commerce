@@ -24,6 +24,7 @@ import UpdateCategory from "../admin/pages/UpdateCategory";
 import CreateCategory from "../admin/pages/CreateCategory";
 import AdminProcessing from "../admin/pages/AdminProcessing";
 import AdminShipped from "../admin/pages/AdminShipped";
+import AdminDelivered from "../admin/pages/AdminDelivered";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -56,6 +57,7 @@ const router = createBrowserRouter(
                 <Route path="create-category" element={<CreateCategory/>}/>
                 <Route path="order-managment" element={<AdminProcessing/>}/>
                 <Route path="shipped-order" element={<AdminShipped/>}/>
+                <Route path="delivered-order" element={<AdminDelivered/>}/>
             </Route>
            </Route>
 
